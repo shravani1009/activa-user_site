@@ -109,11 +109,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontSize: 50,
-    fontWeight: '600',
+    fontSize: 40,
+    fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
     fontFamily: 'Jura',
+    
   },
   illustrationContainer: {
     width: width * 0.95,
