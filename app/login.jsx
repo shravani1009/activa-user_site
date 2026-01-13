@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Dimensions, Platform } from 'react-native'
-import React, { useState } from 'react'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Dimensions, Platform, Animated, Keyboard } from 'react-native'
+import React, { useState, useRef, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
@@ -8,13 +8,97 @@ const login = () => {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('Email')
   const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
+  // const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const emailShift = useRef(new Animated.Value(0)).current
+  const passwordShift = useRef(new Animated.Value(0)).current
+
+  // Reset animations when keyboard is dismissed
+  const resetAnimations = () => {
+    Animated.parallel([
+      Animated.timing(emailShift, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(passwordShift, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }
+
+  useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        resetAnimations()
+      }
+    )
+
+    return () => {
+      keyboardDidHideListener.remove()
+    }
+  }, [])
+
+  const handleEmailFocus = () => {
+    Animated.parallel([
+      Animated.timing(emailShift, {
+        toValue: -10,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(passwordShift, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }
+
+  const handleEmailBlur = () => {
+    Animated.timing(emailShift, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start()
+  }
+
+  const handlePasswordFocus = () => {
+    Animated.parallel([
+      Animated.timing(emailShift, {
+        toValue: -30,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(passwordShift, {
+        toValue: -55,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }
+
+  const handlePasswordBlur = () => {
+    Animated.parallel([
+      Animated.timing(emailShift, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(passwordShift, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Top Section - Purple Background */}
       <View style={styles.topSection}>
         {/* Grid Pattern Background */}
@@ -52,35 +136,17 @@ const login = () => {
       
       {/* Bottom Section - White Background with Login Form */}
       <View style={styles.bottomSection}>
+      <TouchableOpacity
+          style={styles.goButton}
+          onPress={() => router.push('/home')}
+        >
         <Text style={styles.loginTitle}>Log In</Text>
-        
-        {/* Email/Phone Tabs */}
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'Email' && styles.activeTab]}
-            onPress={() => setActiveTab('Email')}
-          >
-            <Text style={[styles.tabText, activeTab === 'Email' && styles.activeTabText]}>
-              Email
-            </Text>
-            {activeTab === 'Email' && <View style={styles.tabUnderline} />}
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'Phone' && styles.activeTab]}
-            onPress={() => setActiveTab('Phone')}
-          >
-            <Text style={[styles.tabText, activeTab === 'Phone' && styles.activeTabText]}>
-              Phone
-            </Text>
-            {activeTab === 'Phone' && <View style={styles.tabUnderline} />}
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
         
         {/* Input Fields */}
         <View style={styles.inputContainer}>
           {activeTab === 'Email' ? (
-            <View style={styles.inputWrapper}>
+            <Animated.View style={[styles.inputWrapper, { transform: [{ translateY: emailShift }] }]}>
               <Text style={styles.inputLabel}>Email Address</Text>
               <View style={styles.inputFieldContainer}>
                 <TextInput
@@ -91,12 +157,14 @@ const login = () => {
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  onFocus={handleEmailFocus}
+                  onBlur={handleEmailBlur}
                 />
                 <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               </View>
-            </View>
+            </Animated.View>
           ) : (
-            <View style={styles.inputWrapper}>
+            <Animated.View style={[styles.inputWrapper, { transform: [{ translateY: emailShift }] }]}>
               <Text style={styles.inputLabel}>Phone Number</Text>
               <View style={styles.inputFieldContainer}>
                 <TextInput
@@ -106,13 +174,15 @@ const login = () => {
                   value={phone}
                   onChangeText={setPhone}
                   keyboardType="phone-pad"
+                  onFocus={handleEmailFocus}
+                  onBlur={handleEmailBlur}
                 />
                 <Ionicons name="call-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
               </View>
-            </View>
+            </Animated.View>
           )}
           
-          <View style={styles.inputWrapper}>
+          <Animated.View style={[styles.passwordInputWrapper, { transform: [{ translateY: passwordShift }] }]}>
             <Text style={styles.inputLabel}>Password</Text>
             <View style={styles.inputFieldContainer}>
               <TextInput
@@ -122,6 +192,8 @@ const login = () => {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
+                onFocus={handlePasswordFocus}
+                onBlur={handlePasswordBlur}
               />
               <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
@@ -134,7 +206,7 @@ const login = () => {
                 />
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         </View>
         
         {/* Remember Me and Forgot Password */}
@@ -155,7 +227,7 @@ const login = () => {
         </View>
         
         {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton}>
+        <TouchableOpacity style={styles.loginButton} onPress={() => router.push('/home ')}>
           <Text style={styles.loginButtonText}>Log in</Text>
         </TouchableOpacity>
       </View>
@@ -168,10 +240,10 @@ export default login
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#3E0288',
   },
   topSection: {
-    flex: 0.4,
+    flex: 0.35,
     backgroundColor: '#3E0288',
     position: 'relative',
     overflow: 'hidden',
@@ -201,70 +273,53 @@ const styles = StyleSheet.create({
   welcomeContainer: {
     alignItems: 'center',
     zIndex: 1,
+    width:'217px',
+    height:'73px',
+
   },
   welcomeTitle: {
-    fontSize: 40,
-    fontWeight: '700',
+    fontSize: 32,
+    fontWeight: 'medium',
     color: '#fff',
+    lineHeight:23,
     textAlign: 'center',
     marginBottom: 12,
-    fontFamily: 'Jura',
+    fontFamily: 'SF Compact Rounded',
+    width:'217px',
+    height:'47px',
   },
   welcomeSubtitle: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'regular',
+    color: '#E8E8E8',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 14,
     opacity: 0.9,
+    width:'198px',
+    height:'28px',
   },
   bottomSection: {
-    flex: 0.6,
+    flex: 0.65,
     backgroundColor: '#fff',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+    borderTopLeftRadius: 55,
+    borderTopRightRadius: 55,
     paddingHorizontal: 24,
     paddingTop: 32,
-    marginTop: -20,
+    marginTop: -35,
     zIndex: 1,
+    overflow: 'hidden',
+    width:'393px',
+    paddingBottom: 0,
+    marginBottom: 0,
   },
   loginTitle: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontSize: 26,
+    fontWeight: 'regular',
+    color: '#000000',
     textAlign: 'center',
+    lineHeight:28,
     marginBottom: 24,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    marginBottom: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  tab: {
-    flex: 1,
-    paddingBottom: 12,
-    alignItems: 'center',
-  },
-  activeTab: {
-    position: 'relative',
-  },
-  tabText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#9CA3AF',
-  },
-  activeTabText: {
-    color: '#1F2937',
-    fontWeight: '600',
-  },
-  tabUnderline: {
-    position: 'absolute',
-    bottom: -1,
-    left: 0,
-    right: 0,
-    height: 2,
-    backgroundColor: '#3E0288',
+    width:'110px',
   },
   inputContainer: {
     marginBottom: 12,
@@ -272,11 +327,17 @@ const styles = StyleSheet.create({
   inputWrapper: {
     marginBottom: 24,
   },
+  passwordInputWrapper: {
+    marginBottom: 12,
+  },
   inputLabel: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: 'medium',
     color: '#1F2937',
     marginBottom: 8,
+    width:'182px',
+    height:'53px',
+
   },
   inputFieldContainer: {
     flexDirection: 'row',
@@ -286,6 +347,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#fff',
     paddingHorizontal: 12,
+    width:'325px',
+    height:'56px',
   },
   inputField: {
     flex: 1,
@@ -303,10 +366,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+    marginTop: 8,
+    width:'322px',
+    height:'20px',
   },
   rememberMeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    width:'78px',
+    height:'23px',
   },
   checkbox: {
     width: 20,
@@ -323,14 +391,16 @@ const styles = StyleSheet.create({
     borderColor: '#3E0288',
   },
   rememberMeText: {
-    fontSize: 14,
-    fontWeight: '400',
+    fontSize: 12,
+    fontWeight: 'regular',
     color: '#1F2937',
+    lineHeight: 23,
   },
   forgotPasswordText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: 'regular',
     color: '#3E0288',
+    lineHeight: 23,
   },
   loginButton: {
     backgroundColor: '#3E0288',
@@ -338,6 +408,7 @@ const styles = StyleSheet.create({
     height: 52,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 16,
     marginBottom: 24,
     ...Platform.select({
       web: {
@@ -372,4 +443,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#3E0288',
   },
-})
+})      
