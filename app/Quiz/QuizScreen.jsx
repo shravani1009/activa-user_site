@@ -3,8 +3,8 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Platform, StatusB
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import MCQ from './components/mcq'
-import TrueFalse from './components/truefalse'
+import MCQ from './components/MCQ'
+import TrueFalse from './components/TrueFalse'
 
 // Sample quiz data - replace with your actual data source
 const quizData = [
@@ -120,7 +120,7 @@ const QuizScreen = () => {
           <Text style={styles.submittedText}>Quiz Completed!</Text>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.push('/home')}
+            onPress={() => router.push('/HomeScreen')}
           >
             <Text style={styles.backButtonText}>Back to Home</Text>
           </TouchableOpacity>
@@ -145,7 +145,7 @@ const QuizScreen = () => {
         <View style={styles.headerRight}>
           <TouchableOpacity 
             style={styles.iconButton}
-            onPress={() => router.push('/settings')}
+            onPress={() => router.push('/SettingScreen')}
           >
             <Ionicons name="settings-outline" size={24} color="#3E0288" />
           </TouchableOpacity>
@@ -201,7 +201,7 @@ const QuizScreen = () => {
       <View style={styles.bottomNav}>
         <TouchableOpacity 
           style={styles.navItem}
-          onPress={() => router.push('/home')}
+          onPress={() => router.push('/HomeScreen')}
         >
           <View style={styles.navIconContainer}>
             <Ionicons name="home" size={24} color="#fff" />

@@ -226,7 +226,7 @@ export default function SettingScreen() {
 
         {/* Account Settings */}
         <SectionTitle label="Account Settings" style={{ marginTop: 26 }} />
-        <TouchableOpacity activeOpacity={0.7} onPress={() => {}}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/ChangePasswordScreen')}>
           <SettingsRow
             icon="key-outline"
             iconBg="#F3E8FF"
