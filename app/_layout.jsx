@@ -10,7 +10,7 @@ function BottomNavigator() {
   const insets = useSafeAreaInsets()
 
   // Show bottom nav ONLY on these screens
-  const showOnScreens = ['/HomeScreen', '/VideoScreen']
+  const showOnScreens = ['/HomeScreen',]
   if (!showOnScreens.includes(pathname)) {
     return null
   }
