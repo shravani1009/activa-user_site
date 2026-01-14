@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Dimensions,
   FlatList,
   StyleSheet,
 } from 'react-native';
@@ -11,14 +10,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const scaleWidth = SCREEN_WIDTH / 414;
-const scaleHeight = SCREEN_HEIGHT / 896;
-const headerFontSize = Math.min(28, SCREEN_WIDTH * 0.07);
-
-// exact design base sizes
 const CARD_WIDTH = 353;
-const CARD_HEIGHT = 125;
+const CARD_HEIGHT = 140;
 
 export default function NotificationScreen() {
   const router = useRouter();
@@ -47,98 +40,24 @@ export default function NotificationScreen() {
     },
   ];
 
-  const renderItem = ({ item }) => <NotificationCard item={item} />;
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      {/* Header: Back on left, Settings on right */}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingTop: 20,
-          marginTop: 20,
-          marginBottom: 20,
-          paddingHorizontal: 20 * scaleWidth,
-        }}
-      >
-        {/* Left: Back */}
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            backgroundColor: '#E5E7EB',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <Ionicons name="arrow-back-outline" size={18} color="#000" />
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <Ionicons name="arrow-back-outline" size={18} />
         </TouchableOpacity>
-
-        {/* Right: Settings */}
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity
-            onPress={() => router.push('/settings')}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 12,
-              backgroundColor: '#F3F4F6',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginLeft: 8,
-            }}
-          >
-            <Ionicons name="settings-outline" size={20} color="#000" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Screen Title + Mark All Read */}
-      <View
-        style={{
-          paddingHorizontal: 20 * scaleWidth,
-          marginBottom: 16,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: headerFontSize,
-            fontWeight: '600',
-            color: '#111827',
-          }}
-        >
-          Notifications
-        </Text>
-
-        <TouchableOpacity>
-          <Text
-            style={{
-              marginTop: 4 * scaleHeight,
-              fontSize: 12 * scaleWidth,
-              fontWeight: '500',
-              color: '#4C1D95',
-            }}
-          >
-            Mark All Read
-          </Text>
+        <TouchableOpacity style={styles.settingsBtn}>
+          <Ionicons name="settings-outline" size={20} />
         </TouchableOpacity>
       </View>
 
-      {/* Notifications List */}
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{
-          paddingTop: 16 * scaleHeight,
-          paddingHorizontal: 0,
-          alignItems: 'center',
-          paddingBottom: 40 * scaleHeight,
-        }}
+        renderItem={({ item }) => <NotificationCard item={item} />}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
@@ -146,9 +65,6 @@ export default function NotificationScreen() {
 }
 
 const NotificationCard = ({ item }) => {
-  const w = CARD_WIDTH * scaleWidth;
-  const h = CARD_HEIGHT * scaleHeight;
-
   const iconName =
     item.type === 'success'
       ? 'checkmark-circle'
@@ -164,63 +80,126 @@ const NotificationCard = ({ item }) => {
       : '#F97373';
 
   return (
-    <View
-      style={{
-        width: w,
-        height: h,
-        borderRadius: 10,
-        borderColor: '#000000',
-        borderTopWidth: 1,
-        borderLeftWidth: 1,
-        borderRightWidth: 3,
-        borderBottomWidth: 3,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        marginBottom: 12 * scaleHeight,
-        backgroundColor: 'white',
-        justifyContent: 'space-between',
-      }}
-    >
-      {/* title + icon */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Text
-          numberOfLines={1}
-          style={{ fontSize: 14, fontWeight: '400', marginRight: 8, flex: 1, color: '#111827' }}
-        >
-          {item.title}
-        </Text>
+    <View style={styles.card}>
+      {/* Title Row */}
+      <View style={styles.titleRow}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.titleText} numberOfLines={2}>
+            {item.title}
+          </Text>
+        </View>
         <Ionicons name={iconName} size={18} color={iconColor} />
       </View>
 
-      {/* description */}
-      <Text
-        numberOfLines={2}
-        style={{ fontSize: 12, fontWeight: '400', color: '#4B5563' }}
-      >
-        {item.description}
-      </Text>
+      {/* Subtitle */}
+      <View style={styles.subtitleContainer}>
+        <Text style={styles.subtitleText} numberOfLines={2}>
+          {item.description}
+        </Text>
+      </View>
 
-      {/* separator line */}
-      <View
-        style={{
-          marginTop: 8,
-          marginBottom: 2,
-          height: StyleSheet.hairlineWidth,
-          backgroundColor: 'black',
-          alignSelf: 'stretch',
-        }}
-      />
+      {/* Divider */}
+      <View style={styles.divider} />
 
-      {/* time */}
-      <Text style={{ fontSize: 10, marginTop: 0, color: '#9CA3AF' }}>
-        {item.time}
-      </Text>
+      {/* Time */}
+      <Text style={styles.timeText}>{item.time}</Text>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    marginBottom: 20,
+  },
+
+  backBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  settingsBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  card: {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+    alignSelf: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    borderTopWidth: 0.5,
+    borderLeftWidth: 0.5,
+    borderRightWidth: 3,
+    borderBottomWidth: 3,
+    borderColor: '#000',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  /* 🔹 TITLE SPECS */
+  titleContainer: {
+    width: 317,
+    height: 75,
+    justifyContent: 'center',
+  },
+
+  titleText: {
+    fontFamily: 'SF Compact Rounded',
+    fontWeight: '400',
+    fontSize: 14,
+    lineHeight: 19,
+    letterSpacing: 0,
+    color: '#111827',
+  },
+
+  /* 🔹 SUBTITLE SPECS */
+  subtitleContainer: {
+    width: 267,
+    height: 75,
+    justifyContent: 'center',
+  },
+
+  subtitleText: {
+    fontFamily: 'SF Compact Rounded',
+    fontWeight: '400',
+    fontSize: 12,
+    lineHeight: 14,
+    letterSpacing: 0,
+    color: '#4B5563',
+  },
+
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: '#000',
+    marginVertical: 6,
+  },
+
+  timeText: {
+    fontSize: 10,
+    color: '#9CA3AF',
+  },
+});  

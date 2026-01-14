@@ -56,9 +56,6 @@ const HomeScreen = () => {
               <Text style={styles.moduleTitle}>Company Vision & Mission</Text>
               <Text style={styles.moduleDescription}>Watch the video and complete the quiz to continue</Text>
             </View>
-            <TouchableOpacity style={styles.moduleIconButton}>
-              <Ionicons name="arrow-up-outline" size={20} color="#3E0288" />
-            </TouchableOpacity>
           </View>
           <View style={styles.moduleProgressBarContainer}>
             <View style={[styles.moduleProgressBarFill, { width: '50%' }]} />
@@ -77,9 +74,6 @@ const HomeScreen = () => {
               <Text style={styles.moduleTitle}>Company Culture & Values</Text>
               <Text style={styles.moduleDescription}>Watch the video and complete the quiz to continue</Text>
             </View>
-            <TouchableOpacity style={styles.moduleIconButton}>
-              <Ionicons name="arrow-up-outline" size={20} color="#3E0288" />
-            </TouchableOpacity>
           </View>
           <View style={styles.moduleProgressBarContainer}>
             <View style={[styles.moduleProgressBarFill, { width: '30%' }]} />

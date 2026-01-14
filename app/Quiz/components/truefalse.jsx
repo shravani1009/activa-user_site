@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const TrueFalse = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#3E0288' }) => {
+const truefalse = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#3E0288' }) => {
   const lightShade = '#F3E8FF';
 
   return (
@@ -97,4 +97,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TrueFalse;
+export default truefalse;
