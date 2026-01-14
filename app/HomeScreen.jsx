@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'relative',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   greeting: {
     // position: 'absolute',

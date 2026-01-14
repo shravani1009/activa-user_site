@@ -1,39 +1,170 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, Platform, StatusBar, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { Video, ResizeMode } from 'expo-av'
+import * as ScreenOrientation from 'expo-screen-orientation'
 
-const { width } = Dimensions.get('window')
+const { width, height } = Dimensions.get('window')
 
 const VideoScreen = () => {
   const router = useRouter()
   const videoRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isVideoCompleted, setIsVideoCompleted] = useState(false)
-  const [showPlayButton, setShowPlayButton] = useState(true)
+  const [showControls, setShowControls] = useState(true)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const [activeTab, setActiveTab] = useState('transcript')
+  const [screenDimensions, setScreenDimensions] = useState(Dimensions.get('screen'))
+  const [playbackStatus, setPlaybackStatus] = useState({
+    positionMillis: 0,
+    durationMillis: 0,
+    isLoaded: false,
+  })
+  const [showCaptions, setShowCaptions] = useState(true)
+  const controlsTimeoutRef = useRef(null)
+  const isManuallyToggling = useRef(false)
+
+  useEffect(() => {
+    // Auto-hide controls after 3 seconds when playing
+    if (isPlaying && showControls) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false)
+      }, 3000)
+    }
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current)
+      }
+    }
+  }, [isPlaying, showControls])
+
+  useEffect(() => {
+    // Listen for dimension changes (orientation changes)
+    const checkOrientation = async () => {
+      // Don't interfere if we're manually toggling fullscreen
+      if (isManuallyToggling.current) {
+        return
+      }
+      
+      try {
+        const orientation = await ScreenOrientation.getOrientationAsync()
+        const isLandscape = 
+          orientation === ScreenOrientation.Orientation.LANDSCAPE_LEFT ||
+          orientation === ScreenOrientation.Orientation.LANDSCAPE_RIGHT
+        
+        if (isLandscape && !isFullscreen) {
+          setIsFullscreen(true)
+        } else if (!isLandscape && isFullscreen) {
+          setIsFullscreen(false)
+        }
+      } catch (error) {
+        // Ignore orientation check errors
+      }
+    }
+
+    const subscription = Dimensions.addEventListener('change', ({ screen }) => {
+      setScreenDimensions(screen)
+      checkOrientation()
+    })
+    return () => subscription?.remove()
+  }, [isFullscreen])
+
+  const formatTime = (millis) => {
+    if (!millis) return '00:00'
+    const totalSeconds = Math.floor(millis / 1000)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  }
 
   const handlePlayPause = async () => {
     if (videoRef.current) {
       if (isPlaying) {
         await videoRef.current.pauseAsync()
         setIsPlaying(false)
-        setShowPlayButton(true)
       } else {
         await videoRef.current.playAsync()
         setIsPlaying(true)
-        setShowPlayButton(false)
       }
+      setShowControls(true)
+    }
+  }
+
+  const handleSeek = async (position) => {
+    if (videoRef.current && playbackStatus.isLoaded) {
+      await videoRef.current.setPositionAsync(position)
+    }
+  }
+
+  const handleRewind = async () => {
+    if (videoRef.current && playbackStatus.isLoaded) {
+      const newPosition = Math.max(0, playbackStatus.positionMillis - 10000) // Rewind 10 seconds
+      await videoRef.current.setPositionAsync(newPosition)
+    }
+  }
+
+  const handleFastForward = async () => {
+    if (videoRef.current && playbackStatus.isLoaded) {
+      const newPosition = Math.min(
+        playbackStatus.durationMillis,
+        playbackStatus.positionMillis + 10000
+      ) // Fast forward 10 seconds
+      await videoRef.current.setPositionAsync(newPosition)
     }
   }
 
   const handleVideoEnd = () => {
     setIsVideoCompleted(true)
     setIsPlaying(false)
-    setShowPlayButton(true)
+    setShowControls(true)
   }
+
+  const toggleControls = () => {
+    setShowControls(!showControls)
+  }
+
+  const handleFullscreen = async () => {
+    isManuallyToggling.current = true
+    try {
+      if (!isFullscreen) {
+        // Enter fullscreen (landscape)
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE)
+        setIsFullscreen(true)
+        setShowControls(true)
+      } else {
+        // Exit fullscreen (portrait) - unlock first, then lock to portrait
+        await ScreenOrientation.unlockAsync()
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP)
+        setIsFullscreen(false)
+        setShowControls(true)
+      }
+    } catch (error) {
+      console.log('Error changing orientation:', error)
+      // Fallback: unlock and toggle state if orientation lock fails
+      try {
+        await ScreenOrientation.unlockAsync()
+      } catch (unlockError) {
+        console.log('Error unlocking orientation:', unlockError)
+      }
+      setIsFullscreen(false)
+      setShowControls(true)
+    } finally {
+      // Reset the flag after a short delay to allow orientation to settle
+      setTimeout(() => {
+        isManuallyToggling.current = false
+      }, 500)
+    }
+  }
+
+
+  // Cleanup orientation lock on unmount
+  useEffect(() => {
+    return () => {
+      ScreenOrientation.unlockAsync().catch(() => {})
+    }
+  }, [])
 
   const handleNext = () => {
     // Navigate to next screen or quiz
@@ -85,69 +216,194 @@ const VideoScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView style={[styles.container, isFullscreen && styles.containerFullscreen]} edges={[]}>
+      <StatusBar 
+        barStyle={isFullscreen ? "light-content" : "dark-content"} 
+        hidden={isFullscreen}
+      />
       
-      {/* Header Section */}
-      <View style={styles.header}>
+      {/* Video Player Section - At the top */}
+      <View style={[
+        styles.videoContainer, 
+        isFullscreen && {
+          ...styles.videoContainerFullscreen,
+          width: screenDimensions.width,
+          height: screenDimensions.height,
+        }
+      ]}>
         <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.back()}
+          style={styles.videoTouchable}
+          activeOpacity={1}
+          onPress={toggleControls}
         >
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Video
+            ref={videoRef}
+            style={styles.video}
+            source={{
+              uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+            }}
+            resizeMode={ResizeMode.COVER}
+            shouldPlay={false}
+            isLooping={false}
+            useNativeControls={false}
+            onPlaybackStatusUpdate={(status) => {
+              if (status.isLoaded) {
+                setPlaybackStatus({
+                  positionMillis: status.positionMillis || 0,
+                  durationMillis: status.durationMillis || 0,
+                  isLoaded: true,
+                })
+              }
+              if (status.didJustFinish) {
+                handleVideoEnd()
+              }
+            }}
+          />
         </TouchableOpacity>
         
-        <View style={styles.headerRight}>
-          <TouchableOpacity 
-            style={styles.iconButton}
-            onPress={() => router.push('/SettingScreen')}
+        {/* Video Controls Overlay */}
+        {showControls && (
+          <SafeAreaView 
+            style={styles.controlsOverlay}
+            edges={isFullscreen ? ['top', 'bottom', 'left', 'right'] : []}
           >
-            <Ionicons name="settings-outline" size={24} color="#3E0288" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="notifications-outline" size={24} color="#3E0288" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Video Player Section - At the top */}
-      <View style={styles.videoContainer}>
-        <Video
-          ref={videoRef}
-          style={styles.video}
-          source={{
-            uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-          }}
-          resizeMode={ResizeMode.COVER}
-          shouldPlay={false}
-          isLooping={false}
-          useNativeControls={false}
-          onPlaybackStatusUpdate={(status) => {
-            if (status.didJustFinish) {
-              handleVideoEnd()
-            }
-          }}
-        />
-        
-        {showPlayButton && (
-          <TouchableOpacity 
-            style={styles.playButtonOverlay}
-            onPress={handlePlayPause}
-            activeOpacity={0.8}
-          >
-            <View style={styles.playButtonCircle}>
-              <Ionicons name="play" size={40} color="#000" />
+            {/* Top Bar Controls */}
+            <View style={[styles.topControlsBar, isFullscreen && styles.topControlsBarFullscreen]}>
+              <TouchableOpacity 
+                style={styles.topControlButton}
+                onPress={() => router.back()}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
+              </TouchableOpacity>
+              
+              <View style={styles.topControlsRight}>
+                <TouchableOpacity 
+                  style={styles.topControlButton}
+                  onPress={() => setShowCaptions(!showCaptions)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="text-outline" size={22} color="#FFFFFF" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.topControlButton}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="cast-outline" size={22} color="#FFFFFF" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.topControlButton}
+                  onPress={() => router.push('/SettingScreen')}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="settings-outline" size={22} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
             </View>
-          </TouchableOpacity>
+
+            {/* Center Controls */}
+            <View style={styles.centerControls}>
+              <TouchableOpacity 
+                style={styles.centerControlButton}
+                onPress={handleRewind}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="play-skip-back" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.centerPlayButton}
+                onPress={handlePlayPause}
+                activeOpacity={0.8}
+              >
+                <View style={styles.playButtonCircle}>
+                  <Ionicons 
+                    name={isPlaying ? "pause" : "play"} 
+                    size={32} 
+                    color="#000" 
+                  />
+                </View>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.centerControlButton}
+                onPress={handleFastForward}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="play-skip-forward" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Bottom Controls Bar */}
+            <View style={[styles.bottomControlsBar, isFullscreen && styles.bottomControlsBarFullscreen]}>
+              <View style={styles.progressContainer}>
+                <TouchableOpacity
+                  style={styles.progressBar}
+                  activeOpacity={1}
+                  onPress={(e) => {
+                    if (playbackStatus.durationMillis > 0) {
+                      const { locationX } = e.nativeEvent
+                      const progressBarWidth = width - 16 - 24 // container width minus padding and fullscreen button
+                      const percentage = Math.max(0, Math.min(1, locationX / progressBarWidth))
+                      const newPosition = percentage * playbackStatus.durationMillis
+                      handleSeek(newPosition)
+                    }
+                  }}
+                >
+                  <View 
+                    style={[
+                      styles.progressFill,
+                      {
+                        width: playbackStatus.durationMillis > 0
+                          ? `${(playbackStatus.positionMillis / playbackStatus.durationMillis) * 100}%`
+                          : '0%'
+                      }
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.progressThumb,
+                      {
+                        left: playbackStatus.durationMillis > 0
+                          ? `${(playbackStatus.positionMillis / playbackStatus.durationMillis) * 100}%`
+                          : '0%'
+                      }
+                    ]}
+                  />
+                </TouchableOpacity>
+                <View style={styles.timeContainer}>
+                  <Text style={styles.timeText}>
+                    {formatTime(playbackStatus.positionMillis)} / {formatTime(playbackStatus.durationMillis)}
+                  </Text>
+                </View>
+              </View>
+              
+              <TouchableOpacity 
+                style={styles.fullscreenButton}
+                onPress={handleFullscreen}
+                activeOpacity={0.7}
+              >
+                <Ionicons 
+                  name={isFullscreen ? "contract" : "expand"} 
+                  size={24} 
+                  color="#FFFFFF" 
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Captions */}
+      
+          </SafeAreaView>
         )}
       </View>
 
       {/* Video Details Section */}
-      <ScrollView 
-        style={styles.detailsScrollView}
-        contentContainerStyle={styles.detailsContent}
-        showsVerticalScrollIndicator={false}
-      >
+      {!isFullscreen && (
+        <ScrollView 
+          style={styles.detailsScrollView}
+          contentContainerStyle={styles.detailsContent}
+          showsVerticalScrollIndicator={false}
+        >
         {/* Video Title */}
         <View style={styles.detailsHeader}>
           <Text style={styles.videoTitle}>{videoDetails.title}</Text>
@@ -184,19 +440,22 @@ const VideoScreen = () => {
 
         {/* Tab Content */}
         {renderTabContent()}
-      </ScrollView>
+        </ScrollView>
+      )}
 
       {/* Next Button - Fixed at bottom */}
-      <View style={styles.nextButtonContainer}>
-        <TouchableOpacity
-          style={styles.nextButton}
-          onPress={handleNext}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.nextButtonText}>Next</Text>
-          <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
+      {!isFullscreen && (
+        <SafeAreaView style={styles.nextButtonContainer} edges={['bottom']}>
+          <TouchableOpacity
+            style={styles.nextButton}
+            onPress={handleNext}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.nextButtonText}>Next</Text>
+            <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        </SafeAreaView>
+      )}
     </SafeAreaView>
   )
 }
@@ -208,68 +467,177 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 10 : 20,
-    paddingBottom: 12,
-    position: 'relative',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerRight: {
-    position: 'absolute',
-    right: 20,
-    top: Platform.OS === 'ios' ? 10 : 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
-  },
-  iconButton: {
-    width: 38,
-    height: 38,
-    borderColor: '#3E0288',
-    justifyContent: 'center',
-    alignItems: 'center',
+  containerFullscreen: {
+    backgroundColor: '#000000',
+    width: '100%',
+    height: '100%',
   },
   videoContainer: {
     width: width,
-    height: width * 0.5625, // 16:9 aspect ratio
+    height: width * 0.75, // Increased height for larger video player
     alignSelf: 'center',
     overflow: 'hidden',
     position: 'relative',
     backgroundColor: '#000',
   },
+  videoContainerFullscreen: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 9999,
+  },
+  videoTouchable: {
+    width: '100%',
+    height: '100%',
+  },
   video: {
     width: '100%',
     height: '100%',
   },
-  playButtonOverlay: {
+  controlsOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  topControlsBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
+    paddingBottom: 16,
+  },
+  topControlsBarFullscreen: {
+    paddingTop: Platform.OS === 'ios' ? 10 : 10,
+  },
+  topControlsRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  topControlButton: {
+    width: 50,
+    height: 70,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    paddingTop: 18,
+    paddingBottom: 4,
+  },
+  centerControls: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 40,
+    flex: 1,
+  },
+  centerControlButton: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  centerPlayButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   playButtonCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderWidth: 2,
-    borderColor: '#000',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  bottomControlsBar: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: 16,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 16,
+    paddingTop: 12,
+    gap: 12,
+  },
+  bottomControlsBarFullscreen: {
+    paddingBottom: Platform.OS === 'ios' ? 10 : 10,
+  },
+  progressContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    paddingTop: 18,
+  },
+  progressBar: {
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 2,
+    position: 'relative',
+    marginBottom: 4,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#3E0288',
+    borderRadius: 2,
+    position: 'absolute',
+    left: 0,
+    top: 0,
+  },
+  progressThumb: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#3E0288',
+    position: 'absolute',
+    top: -4,
+    marginLeft: -6,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  timeText: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    fontFamily: Platform.select({
+      ios: 'SF Compact Rounded',
+      android: 'sans-serif',
+      default: 'Arial',
+    }),
+  },
+  fullscreenButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 3,
+  },
+  captionsContainer: {
+    position: 'absolute',
+    bottom: 60,
+    left: 16,
+    right: 16,
+    alignItems: 'center',
+  },
+  captionText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+    fontFamily: Platform.select({
+      ios: 'SF Compact Rounded',
+      android: 'sans-serif',
+      default: 'Arial',
+    }),
   },
   detailsScrollView: {
     flex: 1,
@@ -279,8 +647,8 @@ const styles = StyleSheet.create({
   },
   detailsHeader: {
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
   },
@@ -309,7 +677,7 @@ const styles = StyleSheet.create({
   tabsContainer: {
     flexDirection: 'row',
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
   },
@@ -384,7 +752,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 20,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 30,
+    paddingBottom: Platform.OS === 'ios' ? 0 : 10,
     paddingTop: 16,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
