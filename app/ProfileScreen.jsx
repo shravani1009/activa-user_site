@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,17 +9,20 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function ProfileScreen() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const scrollViewRef = useRef(null);
   const inputPositions = useRef({});
+
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   /* ---------------- Editable State ---------------- */
   const [fullName, setFullName] = useState('');
@@ -36,19 +39,36 @@ export default function ProfileScreen() {
   const scaleHeight = SCREEN_HEIGHT / 896;
   const headerFontSize = Math.min(28, SCREEN_WIDTH * 0.07);
 
+  /* ---------------- Keyboard Listeners ---------------- */
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
   const handleInputFocus = (key) => {
     setTimeout(() => {
-      if (inputPositions.current[key] && scrollViewRef.current) {
+      if (inputPositions.current[key] !== undefined && scrollViewRef.current) {
+        const scrollOffset = inputPositions.current[key] - (SCREEN_HEIGHT * 0.15);
         scrollViewRef.current.scrollTo({
-          y: inputPositions.current[key] - 150,
+          y: Math.max(0, scrollOffset),
           animated: true,
         });
       }
-    }, 300);
+    }, 250); // slightly lower timeout works better on Android
   };
 
   const handleInputLayout = (key, event) => {
-    inputPositions.current[key] = event.nativeEvent.layout.y;
+    const { y } = event.nativeEvent.layout;
+    inputPositions.current[key] = y;
   };
 
   return (
@@ -72,7 +92,7 @@ export default function ProfileScreen() {
           }}
         >
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={() => router.back()}
             style={{
               width: 32,
               height: 32,
@@ -87,7 +107,7 @@ export default function ProfileScreen() {
 
           <View style={{ flexDirection: 'row' }}>
             <TouchableOpacity
-              onPress={() => navigation.navigate('SettingsScreen')}
+              onPress={() => router.push('/SettingScreen')}
               style={{
                 width: 40,
                 height: 40,
@@ -102,7 +122,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => navigation.navigate('NotificationScreen')}
+              onPress={() => router.push('/SettingScreen')}
               style={{
                 width: 40,
                 height: 40,
@@ -158,15 +178,17 @@ export default function ProfileScreen() {
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
         >
           <ScrollView
             ref={scrollViewRef}
             keyboardShouldPersistTaps="handled"
+            scrollEnabled={keyboardHeight > 0} // scroll only when keyboard visible
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingHorizontal: 20 * scaleWidth,
               paddingTop: 40 * scaleHeight,
-              paddingBottom: 200 * scaleHeight,
+              paddingBottom: keyboardHeight + 20, // add extra space for keyboard
             }}
           >
             {/* Profile Image */}
@@ -253,7 +275,6 @@ export default function ProfileScreen() {
 }
 
 /* ---------------- Input Component ---------------- */
-
 const ProfileInput = ({
   icon,
   label,
@@ -286,10 +307,7 @@ const ProfileInput = ({
           alignItems: 'center',
           width: 329 * scale,
           height: 52 * scale,
-          borderTopWidth: 1,
-          borderRightWidth: 2,
-          borderBottomWidth: 2,
-          borderLeftWidth: 1,
+          borderWidth: 1,
           borderColor: '#000',
           borderRadius: 15 * scale,
           paddingHorizontal: 14 * scale,

@@ -19,10 +19,10 @@ const HomeScreen = () => {
         <View style={styles.header}>
           <Text style={styles.greeting}>Hello Alex,</Text>
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/settings')}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/SettingScreen')}>
               <Ionicons name="settings-outline" size={24} color="#3E0288" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/NotificationScreen')}>
               <Ionicons name="notifications-outline" size={24} color="#3E0288" />
             </TouchableOpacity>
           </View>
@@ -48,7 +48,7 @@ const HomeScreen = () => {
         {/* Module 1: Company Vision & Mission */}
         <TouchableOpacity 
           style={[styles.moduleCard, styles.moduleCard1]}
-          onPress={() => router.push('/vedio')}
+          onPress={() => router.push('/VedioScreen')}
           activeOpacity={0.7}
         >
           <View style={styles.moduleHeader}>
@@ -114,23 +114,6 @@ const HomeScreen = () => {
         {/* Bottom spacing for navigation bar */}
         <View style={styles.bottomSpacing} />
       </ScrollView>
-
-      {/* Bottom Navigation Bar */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="home" size={24} color="#fff" />
-          <View style={styles.navDot} />
-          <Text style={styles.navLabel}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="stats-chart-outline" size={24} color="#fff" />
-          <Text style={styles.navLabel}>Progress</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}>
-          <Ionicons name="person-outline" size={24} color="#fff" />
-          <Text style={styles.navLabel}>Profile</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   )
 }
@@ -156,7 +139,7 @@ const styles = StyleSheet.create({
   greeting: {
     // position: 'absolute',
     left: 14,
-    top: 65,
+    top: 40,
     width: 141,
     height: 23,
     fontSize: 30,
@@ -170,9 +153,8 @@ const styles = StyleSheet.create({
   subtitle: {
     position: 'absolute',
     left: 14,
-    top: 92,
-    width: 317,
-    height: 57,
+    right: 14,
+    top: 78,
     fontSize: 16,
     fontWeight: 'regular',
     color: '#686D76',
@@ -183,13 +165,12 @@ const styles = StyleSheet.create({
   },
   headerRight: {
     position: 'absolute',
-    width: 79,
-    height: 38,
-    left: 270,
-    top: 65,
+    right: 20,
+    top: 35,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
   iconButton: {
     width: 38,
@@ -205,7 +186,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 168,
     left: 17,
-    width: 353,
+    right: 17,
     height: 118,
     backgroundColor: '#3E0288',
     borderRadius: 23,
@@ -258,10 +239,9 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     position: 'absolute',
-    width: 317,
-    height: 19,
-    top: 310,
     left: 23,
+    right: 23,
+    top: 310,
     fontSize: 16,
     fontWeight: '400',
     fontStyle: 'normal',
@@ -273,9 +253,9 @@ const styles = StyleSheet.create({
   },
   moduleCard: {
     position: 'absolute',
-    width: 354,
-    height: 125,
     left: 19,
+    right: 19,
+    height: 125,
     backgroundColor: '#fff',
     borderRadius: 12,
     borderWidth: 1,
@@ -356,48 +336,5 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 100,
-  },
-  bottomNav: {
-    position: 'absolute',
-    top: 700,
-    left: 64,
-    width: 265,
-    height: 60,
-    backgroundColor: '#3E0288',
-    borderRadius: 244,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    ...Platform.select({
-      web: {
-        boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)',
-      },
-      default: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 5,
-      },
-    }),
-  },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#fff',
-    marginTop: 4,
-    marginBottom: 2,
-  },
-  navLabel: {
-    fontSize: 12,
-    color: '#fff',
-    fontWeight: '500',
   },
 })

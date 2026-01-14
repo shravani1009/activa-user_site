@@ -138,7 +138,7 @@ const login = () => {
       <View style={styles.bottomSection}>
       <TouchableOpacity
           style={styles.goButton}
-          onPress={() => router.push('/home')}
+          onPress={() => router.push('/HomeScreen')}
         >
         <Text style={styles.loginTitle}>Log In</Text>
         </TouchableOpacity>
@@ -221,13 +221,13 @@ const login = () => {
             <Text style={styles.rememberMeText}>Remember Me</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/ForgetPasswordScreen')}>
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
         
         {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton} onPress={() => router.push('/home ')}>
+        <TouchableOpacity style={styles.loginButton} onPress={() => router.push('/HomeScreen')}>
           <Text style={styles.loginButtonText}>Log in</Text>
         </TouchableOpacity>
       </View>
@@ -273,9 +273,8 @@ const styles = StyleSheet.create({
   welcomeContainer: {
     alignItems: 'center',
     zIndex: 1,
-    width:'217px',
-    height:'73px',
-
+    width: '100%',
+    maxWidth: 217,
   },
   welcomeTitle: {
     fontSize: 32,
@@ -285,8 +284,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 12,
     fontFamily: 'SF Compact Rounded',
-    width:'217px',
-    height:'47px',
+    width: '100%',
+    maxWidth: 217,
   },
   welcomeSubtitle: {
     fontSize: 12,
@@ -295,8 +294,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 14,
     opacity: 0.9,
-    width:'198px',
-    height:'28px',
+    width: '100%',
+    maxWidth: 198,
   },
   bottomSection: {
     flex: 0.65,
@@ -308,7 +307,7 @@ const styles = StyleSheet.create({
     marginTop: -35,
     zIndex: 1,
     overflow: 'hidden',
-    width:'393px',
+    width: '100%',
     paddingBottom: 0,
     marginBottom: 0,
   },
@@ -319,7 +318,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight:28,
     marginBottom: 24,
-    width:'110px',
+    alignSelf: 'center',
   },
   inputContainer: {
     marginBottom: 12,
@@ -335,9 +334,6 @@ const styles = StyleSheet.create({
     fontWeight: 'medium',
     color: '#1F2937',
     marginBottom: 8,
-    width:'182px',
-    height:'53px',
-
   },
   inputFieldContainer: {
     flexDirection: 'row',
@@ -347,8 +343,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#fff',
     paddingHorizontal: 12,
-    width:'325px',
-    height:'56px',
+    width: '100%',
+    height: 56,
   },
   inputField: {
     flex: 1,
@@ -367,14 +363,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
     marginTop: 8,
-    width:'322px',
-    height:'20px',
+    width: '100%',
   },
   rememberMeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width:'78px',
-    height:'23px',
   },
   checkbox: {
     width: 20,
