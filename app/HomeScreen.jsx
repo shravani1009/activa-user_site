@@ -48,7 +48,7 @@ const HomeScreen = () => {
         {/* Module 1: Company Vision & Mission */}
         <TouchableOpacity 
           style={[styles.moduleCard, styles.moduleCard1]}
-          onPress={() => router.push('/VedioScreen')}
+          onPress={() => router.push('/VideoScreen')}
           activeOpacity={0.7}
         >
           <View style={styles.moduleHeader}>
