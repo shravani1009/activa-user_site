@@ -43,7 +43,7 @@ function BottomNavigator() {
     </View>
   )
 }
-
+  
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
