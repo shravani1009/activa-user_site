@@ -10,7 +10,7 @@ function BottomNavigator() {
   const insets = useSafeAreaInsets()
 
   // Show bottom nav ONLY on these screens
-  const showOnScreens = ['/HomeScreen', '/VedioScreen']
+  const showOnScreens = ['/HomeScreen', '/VideoScreen']
   if (!showOnScreens.includes(pathname)) {
     return null
   }
@@ -58,7 +58,7 @@ export default function RootLayout() {
         <Stack.Screen name="LoginScreen" options={{ title: 'Login' }} />
         <Stack.Screen name="HomeScreen" options={{title:'Home'}}/>
         <Stack.Screen name="SettingScreen" options={{ title: 'Settings', headerShown: false }} />
-        <Stack.Screen name="VedioScreen" options={{ title: 'vedio', headerShown: false }} />
+        <Stack.Screen name="VideoScreen" options={{ title: 'vedio', headerShown: false }} />
         <Stack.Screen name="Quiz/QuizScreen" options={{ title: 'Quiz', headerShown: false }} />
         <Stack.Screen name="ProfileScreen" options={{ title: 'Profile', headerShown: false }} />
         <Stack.Screen name="ChangePasswordScreen" options={{ title: 'Change Password', headerShown: false }} />
