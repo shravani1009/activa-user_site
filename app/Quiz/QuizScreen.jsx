@@ -3,8 +3,8 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Platform, StatusB
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import MCQ from './components/MCQ'
-import TrueFalse from './components/TrueFalse'
+import MCQ from './components/mcq'
+import TrueFalse from './components/truefalse'
 
 // Sample quiz data - replace with your actual data source
 const quizData = [
