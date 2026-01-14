@@ -141,7 +141,7 @@ export default function ForgotPasswordScreen() {
             Remember your password?
           </Text>
 
-          <TouchableOpacity onPress={() => router.push("/login")}>
+          <TouchableOpacity onPress={() => router.push("/LoginScreen")}>
             <Text
               style={{
                 fontSize: 12,

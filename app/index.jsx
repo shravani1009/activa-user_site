@@ -13,29 +13,7 @@ const index = () => {
     <SafeAreaView style={styles.container}>
       {/* Top Section - Purple Background with Illustration */}
       <View style={styles.topSection}>
-        {/* Grid Pattern Background */}
-        <View style={styles.gridContainer}>
-          {/* Vertical lines */}
-          {Array.from({ length: 10 }).map((_, i) => (
-            <View
-              key={`v-${i}`}
-              style={[
-                styles.gridLineVertical,
-                { left: `${(i + 1) * 10}%` }
-              ]}
-            />
-          ))}
-          {/* Horizontal lines */}
-          {Array.from({ length: 10 }).map((_, i) => (
-            <View
-              key={`h-${i}`}
-              style={[
-                styles.gridLineHorizontal,
-                { top: `${(i + 1) * 10}%` }
-              ]}
-            />
-          ))}
-        </View>
+      
         
         {/* Title */}
         <View style={styles.titleContainer}>

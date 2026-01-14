@@ -10,7 +10,11 @@ function BottomNavigator() {
   const insets = useSafeAreaInsets()
 
   // Show bottom nav ONLY on these screens
+<<<<<<< Updated upstream
   const showOnScreens = ['/HomeScreen',]
+=======
+  const showOnScreens = ['/HomeScreen']
+>>>>>>> Stashed changes
   if (!showOnScreens.includes(pathname)) {
     return null
   }
@@ -62,6 +66,8 @@ export default function RootLayout() {
         <Stack.Screen name="Quiz/QuizScreen" options={{ title: 'Quiz', headerShown: false }} />
         <Stack.Screen name="ProfileScreen" options={{ title: 'Profile', headerShown: false }} />
         <Stack.Screen name="ChangePasswordScreen" options={{ title: 'Change Password', headerShown: false }} />
+        <Stack.Screen name="NotificationScreen" options={{ title: 'Notification', headerShown: false }} />
+        <Stack.Screen name="PasswordUpdateScreen" options={{ title: 'Password Update', headerShown: false }} />
         <Stack.Screen name="ForgetPasswordScreen" options={{ title: 'Forget Password', headerShown: false }} />
       </Stack>
       <BottomNavigator />

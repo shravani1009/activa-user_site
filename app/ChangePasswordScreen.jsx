@@ -268,6 +268,7 @@ export default function ChangePasswordScreen() {
 
         {/* BUTTON */}
         <TouchableOpacity
+          onPress={() => router.push('/PasswordUpdateScreen')}
           style={{
             marginBottom: 70 * scaleHeight,
             backgroundColor: '#4B0082',

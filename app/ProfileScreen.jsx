@@ -122,7 +122,7 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => router.push('/SettingScreen')}
+              onPress={() => router.push('/NotificationScreen')}
               style={{
                 width: 40,
                 height: 40,

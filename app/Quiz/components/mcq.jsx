@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const MCQ = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#3E0288' }) => {
+const mcq = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#3E0288' }) => {
   const lightShade = '#F3E8FF';
 
   return (
@@ -80,4 +80,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MCQ;
+export default mcq;

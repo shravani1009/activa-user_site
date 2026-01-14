@@ -8,7 +8,7 @@ const login = () => {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('Email')
   const [email, setEmail] = useState('')
-  // const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
@@ -103,26 +103,7 @@ const login = () => {
       <View style={styles.topSection}>
         {/* Grid Pattern Background */}
         <View style={styles.gridContainer}>
-          {/* Vertical lines */}
-          {Array.from({ length: 10 }).map((_, i) => (
-            <View
-              key={`v-${i}`}
-              style={[
-                styles.gridLineVertical,
-                { left: `${(i + 1) * 10}%` }
-              ]}
-            />
-          ))}
-          {/* Horizontal lines */}
-          {Array.from({ length: 10 }).map((_, i) => (
-            <View
-              key={`h-${i}`}
-              style={[
-                styles.gridLineHorizontal,
-                { top: `${(i + 1) * 10}%` }
-              ]}
-            />
-          ))}
+       
         </View>
         
         {/* Welcome Text */}
@@ -236,6 +217,7 @@ const login = () => {
 }
 
 export default login
+// Only the styles object is updated for label and input spacing
 
 const styles = StyleSheet.create({
   container: {
@@ -321,19 +303,23 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   inputContainer: {
-    marginBottom: 12,
+    marginBottom: 0,
   },
   inputWrapper: {
     marginBottom: 24,
   },
   passwordInputWrapper: {
-    marginBottom: 12,
+    marginBottom: 10,
   },
   inputLabel: {
     fontSize: 12,
-    fontWeight: 'medium',
+    fontWeight: '500',
     color: '#1F2937',
-    marginBottom: 8,
+    marginBottom: 4, // reduced from 8 to 4 for less space
+    fontFamily: 'SF Compact Rounded',
+    fontStyle: 'medium',
+    lineHeight: 18, // reduced from 23 to align better with input
+    paddingLeft: 4, // added padding to move label slightly inside
   },
   inputFieldContainer: {
     flexDirection: 'row',
@@ -362,18 +348,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
-    marginTop: 8,
+    marginTop: 0,
     width: '100%',
   },
   rememberMeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    
   },
   checkbox: {
     width: 20,
     height: 20,
     borderWidth: 2,
-    borderColor: '#D1D5DB',
+    borderColor: '#E5E5E5',
     borderRadius: 4,
     marginRight: 8,
     justifyContent: 'center',
@@ -386,7 +373,7 @@ const styles = StyleSheet.create({
   rememberMeText: {
     fontSize: 12,
     fontWeight: 'regular',
-    color: '#1F2937',
+    color: '#686D76',
     lineHeight: 23,
   },
   forgotPasswordText: {
@@ -396,13 +383,15 @@ const styles = StyleSheet.create({
     lineHeight: 23,
   },
   loginButton: {
+    width:287,
     backgroundColor: '#3E0288',
     borderRadius: 8,
     height: 52,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 60,
     marginBottom: 24,
+    alignSelf: 'center',
     ...Platform.select({
       web: {
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
@@ -436,4 +425,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#3E0288',
   },
-})      
+})

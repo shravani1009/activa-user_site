@@ -149,7 +149,9 @@ const QuizScreen = () => {
           >
             <Ionicons name="settings-outline" size={24} color="#3E0288" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity style={styles.iconButton}
+            onPress={() => router.push('/NotificationScreen')}
+          >
             <Ionicons name="notifications-outline" size={24} color="#3E0288" />
           </TouchableOpacity>
         </View>
