@@ -18,6 +18,12 @@ import { useFocusEffect } from '@react-navigation/native'
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
+const BASE_WIDTH = 414;
+const BASE_HEIGHT = 896;
+
+const scaleWidth = (size) => (SCREEN_WIDTH / BASE_WIDTH) * size;
+const scaleHeight = (size) => (SCREEN_HEIGHT / BASE_HEIGHT) * size;
+
 const login = () => {
   const router = useRouter()
   const scrollViewRef = useRef(null);
@@ -30,6 +36,7 @@ const login = () => {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [emailError, setEmailError] = useState('')
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', (e) => {
@@ -49,14 +56,14 @@ const login = () => {
     setTimeout(() => {
       if (inputPositions.current[key] !== undefined && scrollViewRef.current && keyboardHeight > 0) {
         // Calculate the visible area above the keyboard
-        const visibleAreaTop = 100; // Top padding/safe area
-        const visibleAreaBottom = SCREEN_HEIGHT - keyboardHeight - 100; // Bottom minus keyboard minus some padding
+        const visibleAreaTop = scaleHeight(100); // Top padding/safe area
+        const visibleAreaBottom = SCREEN_HEIGHT - keyboardHeight - scaleHeight(100); // Bottom minus keyboard minus some padding
         const inputY = inputPositions.current[key];
         
         // Only scroll if input is below the visible area
-        if (inputY > visibleAreaBottom - 150) {
+        if (inputY > visibleAreaBottom - scaleHeight(150)) {
           // Position input near the top of visible area (150px from top)
-          const scrollOffset = inputY - 150;
+          const scrollOffset = inputY - scaleHeight(150);
           scrollViewRef.current.scrollTo({
             y: Math.max(0, scrollOffset),
             animated: true,
@@ -69,6 +76,26 @@ const login = () => {
   const handleInputLayout = (key, event) => {
     const { y } = event.nativeEvent.layout;
     inputPositions.current[key] = y;
+  };
+
+  // Email validation
+  const validateEmail = (emailValue) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailValue.length === 0) {
+      setEmailError('');
+      return true;
+    }
+    if (!emailRegex.test(emailValue)) {
+      setEmailError('Please enter a valid email address');
+      return false;
+    }
+    setEmailError('');
+    return true;
+  };
+
+  const handleEmailChange = (text) => {
+    setEmail(text);
+    validateEmail(text);
   };
 
   // Reset screen when navigating back to it
@@ -104,7 +131,7 @@ const login = () => {
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? scaleHeight(80) : 0}
         >
           <ScrollView
             ref={scrollViewRef}
@@ -112,9 +139,9 @@ const login = () => {
             scrollEnabled={keyboardHeight > 0}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
-              paddingHorizontal: 24,
-              paddingTop: 32,
-              paddingBottom: keyboardHeight + 20,
+              paddingHorizontal: scaleWidth(24),
+              paddingTop: scaleHeight(32),
+              paddingBottom: keyboardHeight > 0 ? keyboardHeight + scaleHeight(150) : scaleHeight(20),
             }}
           >
             <Text style={styles.loginTitle}>Log In</Text>
@@ -126,19 +153,20 @@ const login = () => {
                   onLayout={e => handleInputLayout('emailInput', e)}
                 >
                   <Text style={styles.inputLabel}>Email Address</Text>
-                  <View style={styles.inputFieldContainer}>
+                  <View style={[styles.inputFieldContainer, emailError ? styles.inputFieldContainerError : null]}>
                     <TextInput
                       style={styles.inputField}
                       placeholder="Enter your email"
                       placeholderTextColor="#9CA3AF"
                       value={email}
-                      onChangeText={setEmail}
+                      onChangeText={handleEmailChange}
                       keyboardType="email-address"
                       autoCapitalize="none"
                       onFocus={() => handleInputFocus('emailInput')}
                     />
-                    <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                    <Ionicons name="mail-outline" size={scaleWidth(20)} color="#9CA3AF" style={styles.inputIcon} />
                   </View>
+                  {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
                 </View>
               ) : (
                 <View 
@@ -156,7 +184,7 @@ const login = () => {
                       keyboardType="phone-pad"
                       onFocus={() => handleInputFocus('phoneInput')}
                     />
-                    <Ionicons name="call-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                    <Ionicons name="call-outline" size={scaleWidth(20)} color="#9CA3AF" style={styles.inputIcon} />
                   </View>
                 </View>
               )}
@@ -182,7 +210,7 @@ const login = () => {
                   >
                     <Ionicons
                       name={showPassword ? "eye-outline" : "eye-off-outline"}
-                      size={20}
+                      size={scaleWidth(20)}
                       color="#9CA3AF"
                     />
                   </TouchableOpacity>
@@ -197,7 +225,7 @@ const login = () => {
                 onPress={() => setRememberMe(!rememberMe)}
               >
                 <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-                  {rememberMe && <Ionicons name="checkmark" size={14} color="#fff" />}
+                  {rememberMe && <Ionicons name="checkmark" size={scaleWidth(14)} color="#fff" />}
                 </View>
                 <Text style={styles.rememberMeText}>Remember Me</Text>
               </TouchableOpacity>
@@ -224,7 +252,7 @@ export default login
 
 // Only the styles object is updated for label and input spacing
 
-const styles = StyleSheet.create({
+const getStyles = () => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#3E0288',
@@ -236,7 +264,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: scaleWidth(24),
   },
   gridContainer: {
     position: 'absolute',
@@ -261,94 +289,94 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 1,
     width: '100%',
-    maxWidth: 217,
+    maxWidth: scaleWidth(217),
   },
   welcomeTitle: {
-    fontSize: 32,
+    fontSize: scaleWidth(32),
     fontWeight: 'medium',
     color: '#fff',
-    lineHeight:23,
+    lineHeight: scaleHeight(23),
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: scaleHeight(12),
     fontFamily: 'SF Compact Rounded',
     width: '100%',
-    maxWidth: 217,
+    maxWidth: scaleWidth(217),
   },
   welcomeSubtitle: {
-    fontSize: 12,
+    fontSize: scaleWidth(12),
     fontWeight: 'regular',
     color: '#E8E8E8',
     textAlign: 'center',
-    lineHeight: 14,
+    lineHeight: scaleHeight(14),
     opacity: 0.9,
     width: '100%',
-    maxWidth: 198,
+    maxWidth: scaleWidth(198),
   },
   bottomSection: {
     flex: 0.65,
     backgroundColor: '#fff',
-    borderTopLeftRadius: 55,
-    borderTopRightRadius: 55,
-    marginTop: -35,
+    borderTopLeftRadius: scaleWidth(55),
+    borderTopRightRadius: scaleWidth(55),
+    marginTop: scaleHeight(-35),
     zIndex: 1,
     overflow: 'hidden',
     width: '100%',
   },
   loginTitle: {
-    fontSize: 26,
+    fontSize: scaleWidth(26),
     fontWeight: 'regular',
     color: '#000000',
     textAlign: 'center',
-    lineHeight:28,
-    marginBottom: 24,
+    lineHeight: scaleHeight(28),
+    marginBottom: scaleHeight(24),
     alignSelf: 'center',
   },
   inputContainer: {
     marginBottom: 0,
   },
   inputWrapper: {
-    marginBottom: 24,
+    marginBottom: scaleHeight(24),
   },
   passwordInputWrapper: {
-    marginBottom: 10,
+    marginBottom: scaleHeight(10),
   },
   inputLabel: {
-    fontSize: 12,
+    fontSize: scaleWidth(12),
     fontWeight: '500',
     color: '#1F2937',
-    marginBottom: 4, // reduced from 8 to 4 for less space
+    marginBottom: scaleHeight(4), // reduced from 8 to 4 for less space
     fontFamily: 'SF Compact Rounded',
     fontStyle: 'medium',
-    lineHeight: 18, // reduced from 23 to align better with input
-    paddingLeft: 4, // added padding to move label slightly inside
+    lineHeight: scaleHeight(18), // reduced from 23 to align better with input
+    paddingLeft: scaleWidth(4), // added padding to move label slightly inside
   },
   inputFieldContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: 8,
+    borderRadius: scaleWidth(8),
     backgroundColor: '#fff',
-    paddingHorizontal: 12,
+    paddingHorizontal: scaleWidth(12),
     width: '100%',
-    height: 56,
+    height: scaleHeight(56),
   },
   inputField: {
     flex: 1,
-    height: 48,
-    fontSize: 16,
+    height: scaleHeight(48),
+    fontSize: scaleWidth(16),
     color: '#1F2937',
     paddingVertical: 0,
   },
   inputIcon: {
-    marginLeft: 8,
-    padding: 4,
+    marginLeft: scaleWidth(8),
+    padding: scaleWidth(4),
   },
   optionsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: scaleHeight(24),
     marginTop: 0,
     width: '100%',
   },
@@ -358,12 +386,12 @@ const styles = StyleSheet.create({
     
   },
   checkbox: {
-    width: 20,
-    height: 20,
+    width: scaleWidth(20),
+    height: scaleWidth(20),
     borderWidth: 2,
     borderColor: '#E5E5E5',
-    borderRadius: 4,
-    marginRight: 8,
+    borderRadius: scaleWidth(4),
+    marginRight: scaleWidth(8),
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -372,26 +400,26 @@ const styles = StyleSheet.create({
     borderColor: '#3E0288',
   },
   rememberMeText: {
-    fontSize: 12,
+    fontSize: scaleWidth(12),
     fontWeight: 'regular',
     color: '#686D76',
-    lineHeight: 23,
+    lineHeight: scaleHeight(23),
   },
   forgotPasswordText: {
-    fontSize: 12,
+    fontSize: scaleWidth(12),
     fontWeight: 'regular',
     color: '#3E0288',
-    lineHeight: 23,
+    lineHeight: scaleHeight(23),
   },
   loginButton: {
-    width:287,
+    width: scaleWidth(287),
     backgroundColor: '#3E0288',
-    borderRadius: 8,
-    height: 52,
+    borderRadius: scaleWidth(8),
+    height: scaleHeight(52),
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 60,
-    marginBottom: 24,
+    marginTop: scaleHeight(60),
+    marginBottom: scaleHeight(24),
     alignSelf: 'center',
     ...Platform.select({
       web: {
@@ -407,7 +435,7 @@ const styles = StyleSheet.create({
     }),
   },
   loginButtonText: {
-    fontSize: 16,
+    fontSize: scaleWidth(16),
     fontWeight: '600',
     color: '#fff',
   },
@@ -417,13 +445,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   signUpText: {
-    fontSize: 14,
+    fontSize: scaleWidth(14),
     fontWeight: '400',
     color: '#1F2937',
   },
-  signUpLink: {
-    fontSize: 14,
+    signUpLink: {
+    fontSize: scaleWidth(14),
     fontWeight: '500',
     color: '#3E0288',
   },
-})
+  inputFieldContainerError: {
+    borderColor: '#DC2626',
+  },
+  errorText: {
+    fontSize: scaleWidth(12),
+    color: '#DC2626',
+    marginTop: scaleHeight(4),
+    marginLeft: scaleWidth(4),
+    fontFamily: 'SF Compact Rounded',
+  },
+});
+
+const styles = getStyles();

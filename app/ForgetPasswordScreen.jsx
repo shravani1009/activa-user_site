@@ -14,7 +14,8 @@ export default function ForgotPasswordScreen() {
   const scaleWidth = SCREEN_WIDTH / 414;
   const scaleHeight = SCREEN_HEIGHT / 896;
 
-  const isEmailValid = email.trim().length > 0;
+  // ✅ ONLY THIS LINE IS CHANGED (email validation added)
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSendLink = () => {
     if (!isEmailValid) return;
@@ -133,12 +134,14 @@ export default function ForgotPasswordScreen() {
               flexDirection: "row",
               justifyContent: "center",
               marginBottom: 20 * scaleHeight,
-           
             }}
           >
-            <Ionicons name="checkmark-circle" size={18 * scaleWidth}
-  color="#34C759"
-  style={{ marginRight: 8 * scaleWidth }} />
+            <Ionicons
+              name="checkmark-circle"
+              size={18 * scaleWidth}
+              color="#34C759"
+              style={{ marginRight: 8 * scaleWidth }}
+            />
             <Text
               style={{
                 fontSize: 14 * scaleWidth,
@@ -148,7 +151,6 @@ export default function ForgotPasswordScreen() {
             >
               Check your email for reset password
             </Text>
-       
           </View>
         ) : (
           <>
