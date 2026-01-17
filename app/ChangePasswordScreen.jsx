@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
+  
   Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,6 +28,16 @@ export default function ChangePasswordScreen() {
   const scaleWidth = SCREEN_WIDTH / 414;
   const scaleHeight = SCREEN_HEIGHT / 896;
   const headerFontSize = Math.min(28, SCREEN_WIDTH * 0.07);
+
+  // Container and padding calculations
+  // Reference screen: 414px width, 20px padding
+  // Calculate padding to maintain same relative position on all screens
+  const REFERENCE_SCREEN_WIDTH = 414;
+  const REFERENCE_PADDING = 20;
+  // Calculate horizontal padding to maintain input box position
+  const HORIZONTAL_PADDING = (REFERENCE_PADDING / REFERENCE_SCREEN_WIDTH) * SCREEN_WIDTH;
+  // Calculate field width to match the width between back arrow and notification icon
+  const FIELD_WIDTH = SCREEN_WIDTH - (HORIZONTAL_PADDING * 2);
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -56,13 +67,12 @@ export default function ChangePasswordScreen() {
     setTimeout(() => {
       if (inputPositions.current[key] !== undefined && scrollViewRef.current) {
         const scrollOffset = inputPositions.current[key] - (SCREEN_HEIGHT * 0.15);
-        // Ensure we don't scroll above the card's top boundary
         scrollViewRef.current.scrollTo({
           y: Math.max(0, scrollOffset),
           animated: true,
         });
       }
-    }, 250); // slightly lower timeout works better on Android
+    }, 250);
   };
 
   const handleInputLayout = (key, event) => {
@@ -77,19 +87,18 @@ export default function ChangePasswordScreen() {
     return 'Password strength: Strong';
   };
 
-  const FIELD_WIDTH = 342;
-  const FIELD_HEIGHT = 48;
+  const styles = getStyles(scaleWidth, scaleHeight);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#3e0288' }}>
       {/* HEADER */}
       <View
-        style={{
-          height: 260 * scaleHeight,
-          paddingHorizontal: 20 * scaleWidth,
-          paddingTop: 30 * scaleHeight,
-          justifyContent: 'space-between',
-        }}
+          style={{
+            height: 260 * scaleHeight,
+            paddingHorizontal: HORIZONTAL_PADDING,
+            paddingTop: 30 * scaleHeight,
+            justifyContent: 'space-between',
+          }}
       >
         <View
           style={{
@@ -100,9 +109,15 @@ export default function ChangePasswordScreen() {
         >
           <TouchableOpacity
             onPress={() => router.back()}
-            style={{ width: 32, height: 32, borderRadius: 8 }}
+            style={{ 
+              width: 32 * scaleWidth, 
+              height: 32 * scaleHeight, 
+              borderRadius: 8 * scaleWidth,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
           >
-            <Ionicons name="arrow-back-outline" size={18} color="#fff" />
+            <Ionicons name="arrow-back-outline" size={18 * scaleWidth} color="#fff" />
           </TouchableOpacity>
 
           <View style={{ flexDirection: 'row' }}>
@@ -110,19 +125,19 @@ export default function ChangePasswordScreen() {
               onPress={() => router.push('/SettingScreen')}
               style={styles.iconBtn}
             >
-              <Ionicons name="settings-outline" size={20} color="#fff" />
+              <Ionicons name="settings-outline" size={20 * scaleWidth} color="#fff" />
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => router.push('/NotificationScreen')}
               style={[styles.iconBtn, { backgroundColor: 'transparent' }]}
             >
-              <Ionicons name="notifications-outline" size={20} color="#fff" />
+              <Ionicons name="notifications-outline" size={20 * scaleWidth} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
 
-        <View style={{ marginBottom: 120, marginLeft: 12, marginTop: 20}}>
+        <View style={{ marginBottom: 120 * scaleHeight, marginLeft: 10 * scaleWidth, marginTop: 20 * scaleHeight }}>
           <Text style={{ fontSize: headerFontSize, fontWeight: '600', color: '#fff' }}>
             Change Password
           </Text>
@@ -143,13 +158,18 @@ export default function ChangePasswordScreen() {
             scrollEnabled={keyboardHeight > 0}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
-              paddingHorizontal: 26,
-              paddingTop: 100,
-              paddingBottom: keyboardHeight + 20,
+              paddingHorizontal: HORIZONTAL_PADDING,
+              paddingTop: 100 * scaleHeight,
+              paddingBottom: keyboardHeight + 20 * scaleHeight,
             }}
           >
             {/* CURRENT */}
-            <View onLayout={e => handleInputLayout('currentPassword', e)}>
+            <View 
+              style={{ 
+                width: FIELD_WIDTH
+              }}
+              onLayout={e => handleInputLayout('currentPassword', e)}
+            >
               <FieldLabel text="Current Password" />
               <PasswordInput
                 placeholder="Enter current password"
@@ -158,13 +178,17 @@ export default function ChangePasswordScreen() {
                 secureTextEntry={!showCurrent}
                 onToggleVisibility={() => setShowCurrent(v => !v)}
                 onFocus={() => handleInputFocus('currentPassword')}
+                scaleWidth={scaleWidth}
+                scaleHeight={scaleHeight}
               />
-              <Text style={styles.helperText}>Password Strength: Medium</Text>
             </View>
 
             {/* NEW */}
             <View
-              style={{ marginTop: 25 }}
+              style={{ 
+                marginTop: 25 * scaleHeight, 
+                width: FIELD_WIDTH
+              }}
               onLayout={e => handleInputLayout('newPassword', e)}
             >
               <FieldLabel text="New Password" />
@@ -175,6 +199,8 @@ export default function ChangePasswordScreen() {
                 secureTextEntry={!showNew}
                 onToggleVisibility={() => setShowNew(v => !v)}
                 onFocus={() => handleInputFocus('newPassword')}
+                scaleWidth={scaleWidth}
+                scaleHeight={scaleHeight}
               />
 
               <Text style={styles.helperText}>
@@ -212,7 +238,10 @@ export default function ChangePasswordScreen() {
 
             {/* CONFIRM */}
             <View
-              style={{ marginTop: 25 }}
+              style={{ 
+                marginTop: 25 * scaleHeight, 
+                width: FIELD_WIDTH
+              }}
               onLayout={e => handleInputLayout('confirmPassword', e)}
             >
               <FieldLabel text="Confirm New Password" />
@@ -223,13 +252,15 @@ export default function ChangePasswordScreen() {
                 secureTextEntry={!showConfirm}
                 onToggleVisibility={() => setShowConfirm(v => !v)}
                 onFocus={() => handleInputFocus('confirmPassword')}
+                scaleWidth={scaleWidth}
+                scaleHeight={scaleHeight}
               />
 
               <Text style={styles.helperText}>Re-enter the new password</Text>
 
               {passwordsMatch && (
                 <View style={styles.matchRow}>
-                  <Ionicons name="checkmark-circle" size={16} color="#16A34A" />
+                  <Ionicons name="checkmark-circle" size={16 * scaleWidth} color="#16A34A" />
                   <Text style={styles.matchText}>Password match</Text>
                 </View>
               )}
@@ -261,6 +292,8 @@ const PasswordInput = ({
   onToggleVisibility,
   onFocus,
   placeholder,
+  scaleWidth,
+  scaleHeight,
 }) => (
   <View style={styles.inputWrapper}>
     <TextInput
@@ -275,29 +308,29 @@ const PasswordInput = ({
     <TouchableOpacity onPress={onToggleVisibility}>
       <Ionicons
         name={secureTextEntry ? 'eye-off-outline' : 'eye-outline'}
-        size={20}
+        size={20 * scaleWidth}
         color="#9CA3AF"
       />
     </TouchableOpacity>
   </View>
 );
 
-const styles = StyleSheet.create({
+const getStyles = (scaleWidth, scaleHeight) => StyleSheet.create({
   card: {
     position: 'absolute',
-    top: 210,
+    top: 220 * scaleHeight,
     left: 0,
     right: 0,
     bottom: 0,
     backgroundColor: '#fff',
-    borderTopLeftRadius: 60,
-    borderTopRightRadius: 60,
+    borderTopLeftRadius: 60 * scaleWidth,
+    borderTopRightRadius: 60 * scaleWidth,
     overflow: 'hidden',
     elevation: 4,
   },
   label: {
-    fontSize: 14,
-    marginBottom: 6,
+    fontSize: 14 * scaleWidth,
+    marginBottom: 6 * scaleHeight,
     paddingLeft: 0,
   },
   inputWrapper: {
@@ -305,60 +338,79 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    borderRadius: 6,
+    borderRadius: 6 * scaleWidth,
     backgroundColor: '#F9FAFB',
-    paddingHorizontal: 14,
-    height: 48,
-    width: 342,
+    paddingHorizontal: 14 * scaleWidth,
+    height: 48 * scaleHeight,
+    width: '100%', // Fill container width to match space between back arrow and notification icon
   },
-  input: { flex: 1 },
-  helperText: { fontSize: 10, color: '#9CA3AF', paddingLeft: 0, marginTop: 5},
-  helperText2: { fontSize: 14, color: '#3E0288', paddingLeft: 0 },
+  input: { 
+    flex: 1,
+    fontSize: 14 * scaleWidth,
+    color: '#000',
+  },
+  helperText: { 
+    fontSize: 10 * scaleWidth, 
+    color: '#9CA3AF', 
+    paddingLeft: 0, 
+    marginTop: 5 * scaleHeight 
+  },
+  helperText2: { 
+    fontSize: 14 * scaleWidth, 
+    color: '#3E0288', 
+    paddingLeft: 0 
+  },
   strengthBar: {
-    marginTop: 25,
-    height: 4,
+    marginTop: 25 * scaleHeight,
+    height: 4 * scaleHeight,
     backgroundColor: '#E5E7EB',
-    borderRadius: 2,
+    borderRadius: 2 * scaleWidth,
     overflow: 'hidden',
-    width: 342,
+    width: '100%', // Fill container width to match input box
   },
   matchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 10 * scaleHeight,
     paddingLeft: 0,
   },
   matchText: {
-    marginLeft: 4,
-    fontSize: 12,
+    marginLeft: 4 * scaleWidth,
+    fontSize: 12 * scaleWidth,
     color: '#16A34A',
     fontWeight: '500',
   },
   button: {
-    marginTop: 50,
-    marginBottom: 70,
+    marginTop: 50 * scaleHeight,
+    marginBottom: 70 * scaleHeight,
     backgroundColor: '#3E0288',
-    borderRadius: 6,
-    height: 48,
-    width: 305,
+    borderRadius: 6 * scaleWidth,
+    height: 48 * scaleHeight,
+    width: 305 * scaleWidth,
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  buttonText: { 
+    color: '#fff', 
+    fontSize: 16 * scaleWidth, 
+    fontWeight: '600' 
+  },
   subtitle: {
-    fontSize: 16,
+    fontSize: 16 * scaleWidth,
     color: '#E5E7EB',
+    marginTop: 4 * scaleHeight,
   },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 40 * scaleWidth,
+    height: 40 * scaleWidth,
+    borderRadius: 20 * scaleWidth,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
     backgroundColor: 'rgba(227,227,227,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,
+    marginLeft: 8 * scaleWidth,
   },
-});
+});const styles = getStyles(SCREEN_WIDTH / 414, SCREEN_HEIGHT / 896);
+
