@@ -1,112 +1,97 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Dimensions, Platform, Animated, Keyboard } from 'react-native'
-import React, { useState, useRef, useEffect } from 'react'
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Dimensions,
+  Platform,
+  Keyboard,
+  KeyboardAvoidingView,
+  ScrollView,
+} from 'react-native'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
+import { useFocusEffect } from '@react-navigation/native'
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const login = () => {
   const router = useRouter()
+  const scrollViewRef = useRef(null);
+  const inputPositions = useRef({});
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
   const [activeTab, setActiveTab] = useState('Email')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
-  const emailShift = useRef(new Animated.Value(0)).current
-  const passwordShift = useRef(new Animated.Value(0)).current
-
-  // Reset animations when keyboard is dismissed
-  const resetAnimations = () => {
-    Animated.parallel([
-      Animated.timing(emailShift, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(passwordShift, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start()
-  }
 
   useEffect(() => {
-    const keyboardDidHideListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => {
-        resetAnimations()
-      }
-    )
+    const showSub = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
 
     return () => {
-      keyboardDidHideListener.remove()
-    }
-  }, [])
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
-  const handleEmailFocus = () => {
-    Animated.parallel([
-      Animated.timing(emailShift, {
-        toValue: -10,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(passwordShift, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start()
-  }
+  const handleInputFocus = (key) => {
+    setTimeout(() => {
+      if (inputPositions.current[key] !== undefined && scrollViewRef.current && keyboardHeight > 0) {
+        // Calculate the visible area above the keyboard
+        const visibleAreaTop = 100; // Top padding/safe area
+        const visibleAreaBottom = SCREEN_HEIGHT - keyboardHeight - 100; // Bottom minus keyboard minus some padding
+        const inputY = inputPositions.current[key];
+        
+        // Only scroll if input is below the visible area
+        if (inputY > visibleAreaBottom - 150) {
+          // Position input near the top of visible area (150px from top)
+          const scrollOffset = inputY - 150;
+          scrollViewRef.current.scrollTo({
+            y: Math.max(0, scrollOffset),
+            animated: true,
+          });
+        }
+      }
+    }, 300);
+  };
 
-  const handleEmailBlur = () => {
-    Animated.timing(emailShift, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start()
-  }
+  const handleInputLayout = (key, event) => {
+    const { y } = event.nativeEvent.layout;
+    inputPositions.current[key] = y;
+  };
 
-  const handlePasswordFocus = () => {
-    Animated.parallel([
-      Animated.timing(emailShift, {
-        toValue: -30,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(passwordShift, {
-        toValue: -55,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start()
-  }
-
-  const handlePasswordBlur = () => {
-    Animated.parallel([
-      Animated.timing(emailShift, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(passwordShift, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start()
-  }
+  // Reset screen when navigating back to it
+  useFocusEffect(
+    useCallback(() => {
+      // Reset scroll position to top
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({ y: 0, animated: false });
+      }
+      // Dismiss keyboard if open
+      Keyboard.dismiss();
+      // Reset keyboard height
+      setKeyboardHeight(0);
+      // Reset input positions
+      inputPositions.current = {};
+    }, [])
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      {/* Top Section - Purple Background */}
+
       <View style={styles.topSection}>
-        {/* Grid Pattern Background */}
-        <View style={styles.gridContainer}>
-       
-        </View>
-        
-        {/* Welcome Text */}
+        <View style={styles.gridContainer} />
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeTitle}>Welcome Back</Text>
           <Text style={styles.welcomeSubtitle}>
@@ -114,109 +99,129 @@ const login = () => {
           </Text>
         </View>
       </View>
-      
-      {/* Bottom Section - White Background with Login Form */}
+
       <View style={styles.bottomSection}>
-      <TouchableOpacity
-          style={styles.goButton}
-          onPress={() => router.push('/HomeScreen')}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
         >
-        <Text style={styles.loginTitle}>Log In</Text>
-        </TouchableOpacity>
-        
-        {/* Input Fields */}
-        <View style={styles.inputContainer}>
-          {activeTab === 'Email' ? (
-            <Animated.View style={[styles.inputWrapper, { transform: [{ translateY: emailShift }] }]}>
-              <Text style={styles.inputLabel}>Email Address</Text>
-              <View style={styles.inputFieldContainer}>
-                <TextInput
-                  style={styles.inputField}
-                  placeholder="Enter your email"
-                  placeholderTextColor="#9CA3AF"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  onFocus={handleEmailFocus}
-                  onBlur={handleEmailBlur}
-                />
-                <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
-              </View>
-            </Animated.View>
-          ) : (
-            <Animated.View style={[styles.inputWrapper, { transform: [{ translateY: emailShift }] }]}>
-              <Text style={styles.inputLabel}>Phone Number</Text>
-              <View style={styles.inputFieldContainer}>
-                <TextInput
-                  style={styles.inputField}
-                  placeholder="Enter your phone"
-                  placeholderTextColor="#9CA3AF"
-                  value={phone}
-                  onChangeText={setPhone}
-                  keyboardType="phone-pad"
-                  onFocus={handleEmailFocus}
-                  onBlur={handleEmailBlur}
-                />
-                <Ionicons name="call-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
-              </View>
-            </Animated.View>
-          )}
-          
-          <Animated.View style={[styles.passwordInputWrapper, { transform: [{ translateY: passwordShift }] }]}>
-            <Text style={styles.inputLabel}>Password</Text>
-            <View style={styles.inputFieldContainer}>
-              <TextInput
-                style={styles.inputField}
-                placeholder="Enter your password"
-                placeholderTextColor="#9CA3AF"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                onFocus={handlePasswordFocus}
-                onBlur={handlePasswordBlur}
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.inputIcon}
+          <ScrollView
+            ref={scrollViewRef}
+            keyboardShouldPersistTaps="handled"
+            scrollEnabled={keyboardHeight > 0}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingHorizontal: 24,
+              paddingTop: 32,
+              paddingBottom: keyboardHeight + 20,
+            }}
+          >
+            <Text style={styles.loginTitle}>Log In</Text>
+            
+            <View style={styles.inputContainer}>
+              {activeTab === 'Email' ? (
+                <View 
+                  style={styles.inputWrapper}
+                  onLayout={e => handleInputLayout('emailInput', e)}
+                >
+                  <Text style={styles.inputLabel}>Email Address</Text>
+                  <View style={styles.inputFieldContainer}>
+                    <TextInput
+                      style={styles.inputField}
+                      placeholder="Enter your email"
+                      placeholderTextColor="#9CA3AF"
+                      value={email}
+                      onChangeText={setEmail}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      onFocus={() => handleInputFocus('emailInput')}
+                    />
+                    <Ionicons name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                  </View>
+                </View>
+              ) : (
+                <View 
+                  style={styles.inputWrapper}
+                  onLayout={e => handleInputLayout('phoneInput', e)}
+                >
+                  <Text style={styles.inputLabel}>Phone Number</Text>
+                  <View style={styles.inputFieldContainer}>
+                    <TextInput
+                      style={styles.inputField}
+                      placeholder="Enter your phone"
+                      placeholderTextColor="#9CA3AF"
+                      value={phone}
+                      onChangeText={setPhone}
+                      keyboardType="phone-pad"
+                      onFocus={() => handleInputFocus('phoneInput')}
+                    />
+                    <Ionicons name="call-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
+                  </View>
+                </View>
+              )}
+              
+              <View 
+                style={styles.passwordInputWrapper}
+                onLayout={e => handleInputLayout('passwordInput', e)}
               >
-                <Ionicons
-                  name={showPassword ? "eye-outline" : "eye-off-outline"}
-                  size={20}
-                  color="#9CA3AF"
-                />
+                <Text style={styles.inputLabel}>Password</Text>
+                <View style={styles.inputFieldContainer}>
+                  <TextInput
+                    style={styles.inputField}
+                    placeholder="Enter your password"
+                    placeholderTextColor="#9CA3AF"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    onFocus={() => handleInputFocus('passwordInput')}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.inputIcon}
+                  >
+                    <Ionicons
+                      name={showPassword ? "eye-outline" : "eye-off-outline"}
+                      size={20}
+                      color="#9CA3AF"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+            
+            {/* Remember Me and Forgot Password */}
+            <View style={styles.optionsContainer}>
+              <TouchableOpacity
+                style={styles.rememberMeContainer}
+                onPress={() => setRememberMe(!rememberMe)}
+              >
+                <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                  {rememberMe && <Ionicons name="checkmark" size={14} color="#fff" />}
+                </View>
+                <Text style={styles.rememberMeText}>Remember Me</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity onPress={() => router.push('/ForgetPasswordScreen')}>
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
               </TouchableOpacity>
             </View>
-          </Animated.View>
-        </View>
-        
-        {/* Remember Me and Forgot Password */}
-        <View style={styles.optionsContainer}>
-          <TouchableOpacity
-            style={styles.rememberMeContainer}
-            onPress={() => setRememberMe(!rememberMe)}
-          >
-            <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-              {rememberMe && <Ionicons name="checkmark" size={14} color="#fff" />}
-            </View>
-            <Text style={styles.rememberMeText}>Remember Me</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity onPress={() => router.push('/ForgetPasswordScreen')}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
-        </View>
-        
-        {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton} onPress={() => router.push('/HomeScreen')}>
-          <Text style={styles.loginButtonText}>Log in</Text>
-        </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={() => router.push('/HomeScreen')}
+            >
+              <Text style={styles.loginButtonText}>Log in</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
     </SafeAreaView>
   )
 }
 
 export default login
+
 // Only the styles object is updated for label and input spacing
 
 const styles = StyleSheet.create({
@@ -284,14 +289,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 55,
     borderTopRightRadius: 55,
-    paddingHorizontal: 24,
-    paddingTop: 32,
     marginTop: -35,
     zIndex: 1,
     overflow: 'hidden',
     width: '100%',
-    paddingBottom: 0,
-    marginBottom: 0,
   },
   loginTitle: {
     fontSize: 26,

@@ -9,14 +9,16 @@ import {
   ScrollView,
   Animated,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function SettingScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const CARD_RADIUS = 60;
   const scaleWidth = SCREEN_WIDTH / 414;
   const scaleHeight = SCREEN_HEIGHT / 896;
@@ -71,7 +73,6 @@ export default function SettingScreen() {
           justifyContent: 'space-between',
         }}
       >
-        {/* Top Row: Back Button and Icons */}
         <View
           style={{
             flexDirection: 'row',
@@ -79,40 +80,26 @@ export default function SettingScreen() {
             alignItems: 'center',
           }}
         >
-          {/* Back Button */}
           <TouchableOpacity
             onPress={() => router.back()}
-            style={{
-              width: 32,
-              height: 32,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
+            style={{ width: 32, height: 32, borderRadius: 8 }}
           >
             <Ionicons name="arrow-back-outline" size={18} color="#fff" />
           </TouchableOpacity>
 
-          {/* Top Icons */}
-          <View style={{
-            position: 'absolute',
-            width: 79,
-            height: 38,
-            left: 310,
-            top: 55,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
+          <View style={{ flexDirection: 'row' }}>
             <TouchableOpacity
-              onPress={() => router.push('/notifications')}
-              style={{
-                width: 38,
-                height: 38,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
+              onPress={() => router.push('/SettingScreen')}
+              style={styles.iconBtn}
             >
-              <Ionicons name="notifications-outline" size={24} color="#fff" />
+              <Ionicons name="settings-outline" size={20} color="#fff" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.push('/NotificationScreen')}
+              style={[styles.iconBtn, { backgroundColor: 'transparent' }]}
+            >
+              <Ionicons name="notifications-outline" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
@@ -126,7 +113,7 @@ export default function SettingScreen() {
               color: '#fff',
             }}
           >
-            Settings
+            Setting
           </Text>
           <Text
             style={{
@@ -135,7 +122,7 @@ export default function SettingScreen() {
               marginTop: 4,
             }}
           >
-            Choose your preferences
+            Choose Your Preferences
           </Text>
         </View>
       </View>
@@ -152,38 +139,61 @@ export default function SettingScreen() {
           borderTopLeftRadius: CARD_RADIUS * scaleWidth,
           borderTopRightRadius: CARD_RADIUS * scaleWidth,
           paddingHorizontal: 24 * scaleWidth,
-          paddingTop: 32 * scaleHeight,
+          paddingTop: 24 * scaleHeight,
           shadowColor: '#000',
-          shadowOpacity: 0.06,
-          shadowOffset: { width: 0, height: -2 },
-          shadowRadius: 10,
-          elevation: 4,
+          shadowOpacity: 0.1,
+          shadowOffset: { width: 0, height: 4 },
+          shadowRadius: 8,
+          elevation: 8,
+        }}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom,
         }}
       >
         {/* Notification Preferences */}
         <SectionTitle label="Notification Preferences" />
+        <View style={styles.notificationContainer}>
+          <SettingsRow
+            customIcon={
+              <Image
+                source={require('../assets/images/notify.svg')}
+                style={{ width: 18, height: 18 }}
+                contentFit="contain"
+              />
+            }
+            label="Push Notifications"
+            rightComponent={<PurpleSwitch value={pushEnabled} onValueChange={togglePush} />}
+            showSeparator={true}
+          />
+        <View style={{ height: 1, backgroundColor: '#E5E7EB', width: '100%' }} />
+
+
         <SettingsRow
-          icon="notifications-outline"
-          iconBg="#F3E8FF"
-          label="Push Notifications"
-          rightComponent={<PurpleSwitch value={pushEnabled} onValueChange={togglePush} />}
-        />
-        <SettingsRow
-          icon="mail-outline"
-          iconBg="#F3E8FF"
-          label="Email Notifications"
-          rightComponent={<PurpleSwitch value={emailEnabled} onValueChange={toggleEmail} />}
-        />
+            customIcon={
+              <Image
+                source={require('../assets/images/email.svg')}
+                style={{ width: 18, height: 18 }}
+                contentFit="contain"
+              />
+            }
+            label="Email Notifications"
+            rightComponent={<PurpleSwitch value={emailEnabled} onValueChange={toggleEmail} />}
+            showSeparator={false}
+          />
+        </View>
 
         {/* App Preferences */}
-        <SectionTitle label="App Preferences" style={{ marginTop: 26 }} />
-
-        {/* Language Row */}
-        <View style={{ marginBottom: 12 }}>
-          <TouchableOpacity onPress={toggleDropdown}>
+        <SectionTitle label="App Preferences" style={{ marginTop: 18 }} />
+        <View style={styles.notificationContainer}>
+          <TouchableOpacity onPress={toggleDropdown} activeOpacity={0.7}>
             <SettingsRow
-              icon="language-outline"
-              iconBg="#F3E8FF"
+              customIcon={
+                <Image
+                  source={require('../assets/images/language.svg')}
+                  style={{ width: 18, height: 18 }}
+                  contentFit="contain"
+                />
+              }
               label="Language"
               rightComponent={
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -196,6 +206,7 @@ export default function SettingScreen() {
                   />
                 </View>
               }
+              showSeparator={true}
             />
           </TouchableOpacity>
 
@@ -215,41 +226,68 @@ export default function SettingScreen() {
               ))}
             </Animated.View>
           )}
+          <View style={{ height: 1, backgroundColor: '#E5E7EB', width: '100%' }} />
+
+
+          <SettingsRow
+            customIcon={
+              <Image
+                source={require('../assets/images/mode.svg')}
+                style={{ width: 18, height: 18 }}
+                contentFit="contain"
+              />
+            }
+            label="Dark Mode"
+            rightComponent={<PurpleSwitch value={darkMode} onValueChange={toggleDark} />}
+            showSeparator={false}
+          />
         </View>
 
-        <SettingsRow
-          icon="moon-outline"
-          iconBg="#F3E8FF"
-          label="Dark Mode"
-          rightComponent={<PurpleSwitch value={darkMode} onValueChange={toggleDark} />}
-        />
-
         {/* Account Settings */}
-        <SectionTitle label="Account Settings" style={{ marginTop: 26 }} />
-        <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/ChangePasswordScreen')}>
+        <SectionTitle label="Account Settings" style={{ marginTop: 18 }} />
+        <View style={styles.notificationContainer}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/ChangePasswordScreen')}>
+            <SettingsRow
+              customIcon={
+                <Image
+                  source={require('../assets/images/password.svg')}
+                  style={{ width: 18, height: 18 }}
+                  contentFit="contain"
+                />
+              }
+              label="Change Password"
+              rightComponent={<Ionicons name="chevron-forward" size={18} color="#9CA3AF" />}
+              showSeparator={true}
+            />
+          </TouchableOpacity>
+
+          <View style={{ height: 1, backgroundColor: '#E5E7EB', width: '100%' }} />
           <SettingsRow
-            icon="key-outline"
-            iconBg="#F3E8FF"
-            label="Change Password"
+            customIcon={
+              <Image
+                source={require('../assets/images/help.svg')}
+                style={{ width: 18, height: 18 }}
+                contentFit="contain"
+              />
+            }
+            label="Help & Support"
             rightComponent={<Ionicons name="chevron-forward" size={18} color="#9CA3AF" />}
+            showSeparator={false}
           />
-        </TouchableOpacity>
-        <SettingsRow
-          icon="help-circle-outline"
-          iconBg="#F3E8FF"
-          label="Help & Support"
-          rightComponent={<Ionicons name="chevron-forward" size={18} color="#9CA3AF" />}
-        />
-        <TouchableOpacity style={{ marginTop: 6}} activeOpacity={0.7} onPress={() => {}}>
-          <SettingsRow
-            icon="log-out-outline"
-            // iconBg="#FFFFFF"
-            iconColor="#E91B1B"
-            label="Log Out"
-            labelStyle={{ color: '#E91B1B' }}
-            // rightComponent={<Ionicons name="chevron-forward" size={18} color="#9CA3AF" />}
-          />
-        </TouchableOpacity>
+        </View>
+
+        {/* Logout Row - Aligned without container */}
+        <View style={{ width: 358, alignSelf: 'center', paddingHorizontal: 16, marginTop: 12 }}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => { /* logout logic */ }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8 }}>
+              <View style={{ width: 32, height: 32, marginRight: 14, justifyContent: 'center', alignItems: 'center' }}>
+                <Ionicons name="log-out-outline" size={18} color="#E91B1B" />
+              </View>
+              <Text style={[styles.primaryText, { color: '#E91B1B' }]}>Log Out</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -259,7 +297,7 @@ export default function SettingScreen() {
 const SectionTitle = ({ label, style }) => (
   <Text
     style={[
-      { fontSize: 14, color: '#9CA3AF', fontWeight: '400', letterSpacing:0,marginBottom: 5, marginTop: 12 },
+      { fontSize: 14, color: '#9CA3AF', fontWeight: '400', letterSpacing:0, marginBottom: 4, marginTop: 8 },
       style,
     ]}
   >
@@ -267,15 +305,23 @@ const SectionTitle = ({ label, style }) => (
   </Text>
 );
 
-const SettingsRow = ({ icon, iconBg, iconColor = '#6D28D9', label, rightComponent, labelStyle }) => (
-  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}>
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: iconBg, justifyContent: 'center', alignItems: 'center', marginRight: 14 }}>
-        <Ionicons name={icon} size={18} color={iconColor} />
+const SettingsRow = ({ icon, iconBg, iconColor = '#6D28D9', label, rightComponent, labelStyle, showSeparator = false, customIcon }) => (
+  <View style={showSeparator ? { borderBottomWidth: 1, borderBottomColor: '#E5E7EB' } : {}}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {customIcon ? (
+          <View style={{ width: 32, height: 32, marginRight: 14, justifyContent: 'center', alignItems: 'center' }}>
+            {customIcon}
+          </View>
+        ) : (
+          <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: iconBg, justifyContent: 'center', alignItems: 'center', marginRight: 14 }}>
+            <Ionicons name={icon} size={18} color={iconColor} />
+          </View>
+        )}
+        <Text style={[styles.primaryText, labelStyle]}>{label}</Text>
       </View>
-      <Text style={[styles.primaryText, labelStyle]}>{label}</Text>
+      {rightComponent}
     </View>
-    {rightComponent}
   </View>
 );
 
@@ -316,6 +362,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#111827',
     fontWeight: '500',
+  },
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(227,227,227,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+
+  notificationContainer: {
+    width: 358,
+    minHeight: 115,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 6,
+    alignSelf: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 0.75,
   },
 });
 

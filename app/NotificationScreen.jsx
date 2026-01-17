@@ -26,26 +26,36 @@ const CARD_HEIGHT = scaleHeight(114);
 
 export default function NotificationScreen() {
   const router = useRouter();
+  
+  // Calculate card container boundaries (cards are centered)
+  const cardLeftPadding = (SCREEN_WIDTH - CARD_WIDTH) / 2;
+  // Account for card's right border (borderRightWidth: scaleWidth(3))
+  const cardRightEdge = cardLeftPadding + CARD_WIDTH + scaleWidth(3);
+  // Align notification icon's right edge with card's visual right edge
+  const headerRightPadding = SCREEN_WIDTH - cardRightEdge;
 
   const notifications = [
     {
       id: '1',
       title: 'Quiz Completed Successfully',
-      description: 'You have successfully completed the quiz.',
+      description: 'You have passed the quiz and can now proceed',
+      description2: 'to the next module.',
       time: '30 mins ago',
       type: 'success',
     },
     {
       id: '2',
       title: 'Quiz Reminder',
-      description: 'Don’t forget to complete your pending quiz.',
+      description: 'Please complete the pending quiz to stay',
+      description2: 'on track with your training schedule.',
       time: '10 mins ago',
       type: 'warning',
     },
     {
       id: '3',
       title: 'Next Module Locked',
-      description: 'You need to complete previous module to unlock next.',
+      description: 'Complete the current quiz to unlock',
+      description2: 'the next training module.',
       time: '5 mins ago',
       type: 'lock',
     },
@@ -61,8 +71,9 @@ export default function NotificationScreen() {
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
-          paddingTop: scaleHeight(60),
-          paddingHorizontal: scaleWidth(20),
+          paddingTop: scaleHeight(40), // moved icons slightly higher
+          paddingLeft: cardLeftPadding,
+          paddingRight: headerRightPadding,
           marginBottom: scaleHeight(16),
         }}
       >
@@ -72,7 +83,6 @@ export default function NotificationScreen() {
             width: scaleWidth(32),
             height: scaleHeight(32),
             borderRadius: scaleWidth(8),
-            backgroundColor: '#E5E7EB',
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -81,51 +91,43 @@ export default function NotificationScreen() {
             name="arrow-back-outline"
             size={scaleWidth(18)}
             color="#000"
-            style={{ marginTop: scaleHeight(4) }}
+            style={{ marginTop: scaleHeight(0) }} // slightly moved up
           />
         </TouchableOpacity>
 
-        {/* Right icons: Settings first, then Notification */}
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          {/* Settings Icon */}
+        <View style={{ flexDirection: 'row' }}>
           <TouchableOpacity
             onPress={() => router.push('/SettingScreen')}
             style={{
-              width: scaleWidth(40),
-              height: scaleHeight(40),
-              borderRadius: scaleWidth(12),
-              backgroundColor: '#F3F4F6',
-              justifyContent: 'center',
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: 'rgba(62, 2, 136, 0.05)',
               alignItems: 'center',
-              marginRight: scaleWidth(8),
+              justifyContent: 'center',
+              marginLeft: 8,
             }}
           >
-            <Ionicons
-              name="settings-outline"
-              size={scaleWidth(20)}
-              color="#000"
-              style={{ marginTop: scaleHeight(4) }}
-            />
+            <Ionicons name="settings-outline" size={20} color="#3E0288" />
           </TouchableOpacity>
 
-          {/* Notification Icon */}
           <TouchableOpacity
+            onPress={() => router.push('/NotificationScreen')}
             style={{
-              width: scaleWidth(40),
-              height: scaleHeight(40),
-              borderRadius: scaleWidth(12),
-              backgroundColor: '#3E0288', // changed background
-              justifyContent: 'center',
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              backgroundColor: '#3E0288',
               alignItems: 'center',
+              justifyContent: 'center',
+              marginLeft: 8,
             }}
           >
-            <Ionicons
-              name="notifications-outline"
-              size={scaleWidth(20)}
-              color="#fff" // white icon for contrast
-              style={{ marginTop: scaleHeight(4) }}
-            />
+            <Ionicons name="notifications-outline" size={20} color="#fff" />
           </TouchableOpacity>
+          
         </View>
       </View>
 
@@ -134,6 +136,7 @@ export default function NotificationScreen() {
         style={{
           paddingHorizontal: scaleWidth(28),
           marginBottom: scaleHeight(24),
+          marginTop: -scaleHeight(8), // reduce space between back arrow and title
         }}
       >
         {/* Title */}
@@ -143,7 +146,7 @@ export default function NotificationScreen() {
             height: scaleHeight(40),
             marginBottom: scaleHeight(10),
             justifyContent: 'center',
-            marginTop: scaleHeight(14),
+            marginTop: scaleHeight(4),
           }}
         >
           <Text
@@ -166,26 +169,19 @@ export default function NotificationScreen() {
           <TouchableOpacity>
             <Text
               style={{
+                marginTop:-scaleHeight(5),
                 fontFamily: 'SF Compact Rounded',
                 fontWeight: '400',
                 fontSize: scaleWidth(12),
                 lineHeight: scaleHeight(14),
                 letterSpacing: 0,
                 color: '#686D76',
+                textDecorationLine: 'underline',
               }}
             >
               Mark all read
             </Text>
           </TouchableOpacity>
-          {/* Line exactly under text */}
-          <View
-            style={{
-              height: StyleSheet.hairlineWidth,
-              backgroundColor: '#000',
-              width: scaleWidth(71),
-              marginTop: scaleHeight(2),
-            }}
-          />
         </View>
       </View>
 
@@ -197,7 +193,8 @@ export default function NotificationScreen() {
         contentContainerStyle={{
           paddingTop: 0,
           paddingBottom: scaleHeight(40),
-          alignItems: 'center',
+          paddingLeft: cardLeftPadding,
+          paddingRight: cardLeftPadding,
         }}
         ItemSeparatorComponent={() => <View style={{ height: scaleHeight(24) }} />}
         showsVerticalScrollIndicator={false}
@@ -253,7 +250,9 @@ const NotificationCard = ({ item }) => {
             fontWeight: '400',
             marginRight: scaleWidth(8),
             flex: 1,
-            color: '#111827',
+            color: '#000000',
+            fontFamily: 'SF Compact Rounded',
+
           }}
         >
           {item.title}
@@ -268,25 +267,34 @@ const NotificationCard = ({ item }) => {
       </View>
 
       {/* Description */}
-      <Text
-        numberOfLines={2}
-        style={{ fontSize: scaleWidth(12), fontWeight: '400', color: '#4B5563' }}
-      >
-        {item.description}
-      </Text>
+      <View style={{ width: 260 }}>
+        <Text
+          numberOfLines={2}
+          style={{ 
+            fontSize: scaleWidth(12), 
+            fontWeight: '400', 
+            color: '#6B7280',
+            flexWrap: 'wrap',
+          }}
+        >
+          {item.description} {item.description2 || ''}
+        </Text>
+      </View>
 
       {/* Separator */}
       <View
         style={{
           marginTop: scaleHeight(8),
           marginBottom: scaleHeight(2),
+          marginHorizontal: -scaleWidth(16),
           height: StyleSheet.hairlineWidth,
-          backgroundColor: '#000',
+          backgroundColor: '#080808',
+          width: CARD_WIDTH,
         }}
       />
 
       {/* Time */}
-      <Text style={{ fontSize: scaleWidth(10), color: '#9CA3AF' }}>{item.time}</Text>
+      <Text style={{ fontSize: scaleWidth(10),color: '6B7280' }}>{item.time}</Text>
     </View>
   );
 };

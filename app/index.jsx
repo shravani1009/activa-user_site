@@ -8,19 +8,19 @@ const { width, height } = Dimensions.get('window')
 
 const index = () => {
   const router = useRouter()
-  
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Top Section - Purple Background with Illustration */}
       <View style={styles.topSection}>
-      
-        
+
+
         {/* Title */}
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Learning</Text>
           <Text style={styles.title}>Journey Loop</Text>
         </View>
-        
+
         {/* Illustration Section */}
         <View style={styles.illustrationContainer}>
           <Image
@@ -30,18 +30,31 @@ const index = () => {
           />
         </View>
       </View>
-      
+
       {/* Bottom Section - White Background with CTA */}
       <View style={styles.bottomSection}>
         <Text style={styles.ctaText}>
           Log in or sign up to begin your onboarding process through guided video training.
         </Text>
-        <TouchableOpacity
-          style={styles.goButton}
-          onPress={() => router.push('/LoginScreen')}
+        <View
+          style={{
+            width: 84,             // outer ring diameter
+            height: 84,
+            borderRadius: 42,      // make it circular
+            borderWidth: 4,        // thickness of the green ring
+            borderColor: '#3E0288', // green color for the outer ring
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
         >
-          <Text style={styles.goButtonText}>Go</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.goButton}
+            onPress={() => router.push('/LoginScreen')}
+          >
+            <Text style={styles.goButtonText}>Go</Text>
+          </TouchableOpacity>
+        </View>
+
       </View>
     </SafeAreaView>
   )
@@ -83,8 +96,9 @@ const styles = StyleSheet.create({
     opacity: 0.2,
   },
   titleContainer: {
+    marginTop: 10,
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 25,
   },
   title: {
     fontSize: 40,
@@ -92,14 +106,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     fontFamily: 'Jura',
-    
+
   },
   illustrationContainer: {
     width: width * 0.95,
     height: height * 0.4,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -10,
+    marginTop: -2,
   },
   illustration: {
     width: '100%',
@@ -128,12 +142,11 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   goButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 68,
+    height: 68,
+    borderRadius: 36,
     backgroundColor: '#3E0288',
-    borderWidth: 3,
-    borderColor: '#fff',
+    
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({

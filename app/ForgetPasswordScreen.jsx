@@ -1,40 +1,53 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router"; 
+import { useRouter } from "expo-router";
 
-// ForgotPasswordScreen component
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 export default function ForgotPasswordScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [linkSent, setLinkSent] = useState(false);
+
+  // Responsive scaling
+  const scaleWidth = SCREEN_WIDTH / 414;
+  const scaleHeight = SCREEN_HEIGHT / 896;
+
+  const isEmailValid = email.trim().length > 0;
+
+  const handleSendLink = () => {
+    if (!isEmailValid) return;
+    setLinkSent(true);
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#3E0288" }}>
-
       {/* Back Button */}
       <TouchableOpacity
-        onPress={() => router.push("/LoginScreen")} 
+        onPress={() => router.push("/LoginScreen")}
         style={{
           position: "absolute",
-          top: 70,
-          left: 26,
-          width: 22,
-          height: 22,
+          top: 70 * scaleHeight,
+          left: 26 * scaleWidth,
+          width: 22 * scaleWidth,
+          height: 22 * scaleHeight,
           zIndex: 10,
         }}
         activeOpacity={0.7}
       >
-        <Ionicons name="arrow-back" size={22} color="white" />
+        <Ionicons name="arrow-back" size={22 * scaleWidth} color="white" />
       </TouchableOpacity>
 
       {/* Title */}
       <Text
         style={{
           position: "absolute",
-          top: 117,
-          left: 27,
-          fontSize: 24,
+          top: 117 * scaleHeight,
+          left: 27 * scaleWidth,
+          fontSize: 24 * scaleWidth,
           color: "#FFFFFF",
+          fontWeight: "600",
         }}
       >
         Forgot Password
@@ -44,23 +57,24 @@ export default function ForgotPasswordScreen() {
       <Text
         style={{
           position: "absolute",
-          top: 159,
-          left: 27,
-          right: 27,
-          fontSize: 12,
+          top: 159 * scaleHeight,
+          left: 27 * scaleWidth,
+          right: 27 * scaleWidth,
+          fontSize: 12 * scaleWidth,
           color: "#E8E8E8",
         }}
       >
-        Enter your registered email below to receive password reset instructions.
+        Enter your email address and we'll send you instructions to reset your
+        password.
       </Text>
 
       {/* Email Label */}
       <Text
         style={{
           position: "absolute",
-          top: 220,
-          left: 27,
-          fontSize: 12,
+          top: 220 * scaleHeight,
+          left: 27 * scaleWidth,
+          fontSize: 12 * scaleWidth,
           color: "#DADADA",
         }}
       >
@@ -71,16 +85,16 @@ export default function ForgotPasswordScreen() {
       <View
         style={{
           position: "absolute",
-          top: 240,
-          left: 25,
-          right: 25,
-          height: 56,
+          top: 240 * scaleHeight,
+          left: 25 * scaleWidth,
+          right: 25 * scaleWidth,
+          height: 56 * scaleHeight,
           flexDirection: "row",
           alignItems: "center",
           borderWidth: 1,
           borderColor: "#D8B4FE",
-          borderRadius: 12,
-          paddingHorizontal: 16,
+          borderRadius: 12 * scaleWidth,
+          paddingHorizontal: 16 * scaleWidth,
         }}
       >
         <TextInput
@@ -88,92 +102,135 @@ export default function ForgotPasswordScreen() {
           onChangeText={setEmail}
           placeholder="Enter your email"
           placeholderTextColor="#C4B5FD"
-          style={{ flex: 1, color: "white" }}
+          style={{ flex: 1, color: "white", fontSize: 16 * scaleWidth }}
+          keyboardType="email-address"
+          autoCapitalize="none"
         />
-        <Ionicons name="mail-outline" size={20} color="#E9D5FF" />
+        <Ionicons name="mail-outline" size={20 * scaleWidth} color="#E9D5FF" />
       </View>
 
       {/* Bottom Section */}
       <View
         style={{
           position: "absolute",
-          top: 400,
+          top: 400 * scaleHeight,
           left: 0,
           right: 0,
           alignItems: "center",
         }}
       >
-
-        {/* Send Reset Link Button */}
-        <TouchableOpacity
-          style={{
-            width: '80%',
-            maxWidth: 287,
-            height: 45,
-            backgroundColor: "white",
-            borderRadius: 12,
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: 15,
-          }}
-          activeOpacity={0.8}
-        >
-          <Text style={{ color: '#6B21A8', fontWeight: '600', fontSize: 16 }}>
-            Send Reset Link
-          </Text>
-        </TouchableOpacity>
-
-        {/* Remember Password */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 40,
-          }}
-        >
-          <Text
+        {/* SUCCESS STATE */}
+        {linkSent ? (
+          <View
             style={{
-              fontSize: 12,
-              color: "#E8E8E8",
-              marginRight: 4,
+              width: "85%",
+              maxWidth: 320 * scaleWidth,
+              backgroundColor: "#FFFFFF",
+              borderRadius: 16 * scaleWidth,
+              paddingVertical: 24 * scaleHeight,
+              paddingHorizontal: 20 * scaleWidth,
+              alignItems: "center",
+              flexDirection: "row",
+              justifyContent: "center",
+              marginBottom: 20 * scaleHeight,
+           
             }}
           >
-            Remember your password?
-          </Text>
-
-          <TouchableOpacity onPress={() => router.push("/LoginScreen")}>
+            <Ionicons name="checkmark-circle" size={18 * scaleWidth}
+  color="#34C759"
+  style={{ marginRight: 8 * scaleWidth }} />
             <Text
               style={{
-                fontSize: 12,
-                fontWeight: "600",
-                color: "#FFFFFF",
+                fontSize: 14 * scaleWidth,
+                fontWeight: "500",
+                color: "#34C759",
               }}
             >
-              Login
+              Check your email for reset password
             </Text>
-          </TouchableOpacity>
-        </View>
+       
+          </View>
+        ) : (
+          <>
+            {/* Send Reset Link Button */}
+            <TouchableOpacity
+              style={{
+                width: "80%",
+                maxWidth: 287 * scaleWidth,
+                height: 45 * scaleHeight,
+                backgroundColor: "white",
+                borderRadius: 12 * scaleWidth,
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: 15 * scaleHeight,
+                opacity: isEmailValid ? 1 : 0.5,
+              }}
+              activeOpacity={0.8}
+              onPress={handleSendLink}
+              disabled={!isEmailValid}
+            >
+              <Text
+                style={{
+                  color: "#6B21A8",
+                  fontWeight: "600",
+                  fontSize: 16 * scaleWidth,
+                }}
+              >
+                Send Reset Link
+              </Text>
+            </TouchableOpacity>
 
-        {/* Security Info */}
-        <View style={{ alignItems: "center" }}>
-          <Ionicons
-            name="lock-closed-outline"
-            size={22}
-            color="#FFFFFF"
-          />
-          <Text
-            style={{
-              fontSize: 12,
-              color: "#DADADA",
-              marginTop: 10,
-            }}
-          >
-            Your account is secure with us
-          </Text>
-        </View>
+            {/* Remember Password */}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 40 * scaleHeight,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 12 * scaleWidth,
+                  color: "#E8E8E8",
+                  marginRight: 4 * scaleWidth,
+                }}
+              >
+                Remember your password?
+              </Text>
 
+              <TouchableOpacity onPress={() => router.push("/LoginScreen")}>
+                <Text
+                  style={{
+                    fontSize: 12 * scaleWidth,
+                    fontWeight: "600",
+                    color: "#FFFFFF",
+                  }}
+                >
+                  Login
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Security Info */}
+            <View style={{ alignItems: "center" }}>
+              <Ionicons
+                name="lock-closed-outline"
+                size={22 * scaleWidth}
+                color="#FFFFFF"
+              />
+              <Text
+                style={{
+                  fontSize: 12 * scaleWidth,
+                  color: "#DADADA",
+                  marginTop: 10 * scaleHeight,
+                }}
+              >
+                Your account is secure with us
+              </Text>
+            </View>
+          </>
+        )}
       </View>
-
     </View>
   );
 }

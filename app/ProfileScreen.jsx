@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Image,
   Dimensions,
   ScrollView,
   KeyboardAvoidingView,
@@ -14,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -21,25 +21,20 @@ export default function ProfileScreen() {
   const router = useRouter();
   const scrollViewRef = useRef(null);
   const inputPositions = useRef({});
-
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  /* ---------------- Editable State ---------------- */
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [branch, setBranch] = useState('');
   const [department, setDepartment] = useState('');
-
-  /* ---------------- Layout Constants ---------------- */
+  const [startDate, setStartDate] = useState('');
   const CARD_WIDTH = 420;
   const CARD_TOP = 220;
   const CARD_RADIUS = 60;
-
   const scaleWidth = SCREEN_WIDTH / 414;
   const scaleHeight = SCREEN_HEIGHT / 896;
   const headerFontSize = Math.min(28, SCREEN_WIDTH * 0.07);
 
-  /* ---------------- Keyboard Listeners ---------------- */
+
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', (e) => {
       setKeyboardHeight(e.endCoordinates.height);
@@ -92,12 +87,12 @@ export default function ProfileScreen() {
           }}
         >
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={() => router.push('/HomeScreen')}
             style={{
               width: 32,
               height: 32,
               borderRadius: 8,
-              backgroundColor: 'rgba(255,255,255,0.2)',
+              // backgroundColor: 'rgba(255,255,255,0.2)',
               justifyContent: 'center',
               alignItems: 'center',
             }}
@@ -111,8 +106,10 @@ export default function ProfileScreen() {
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: 12,
-                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.3)',
+                backgroundColor: 'transparent',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginLeft: 8,
@@ -126,8 +123,10 @@ export default function ProfileScreen() {
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: 12,
-                backgroundColor: 'rgba(255,255,255,0.2)',
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.3)',
+                backgroundColor: 'transparent',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginLeft: 8,
@@ -139,7 +138,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Title */}
-        <View style={{ marginBottom: 120, marginLeft: 10 }}>
+        <View style={{ marginBottom: 120, marginLeft: 10, marginTop: 20 }}>
           <Text
             style={{
               fontSize: headerFontSize,
@@ -153,10 +152,10 @@ export default function ProfileScreen() {
             style={{
               fontSize: 14 * scaleWidth,
               color: '#E5E7EB',
-              marginTop: 4,
+              marginTop: 1,
             }}
           >
-            Manage your personal information
+            Employee Information
           </Text>
         </View>
       </View>
@@ -183,16 +182,16 @@ export default function ProfileScreen() {
           <ScrollView
             ref={scrollViewRef}
             keyboardShouldPersistTaps="handled"
-            scrollEnabled={keyboardHeight > 0} // scroll only when keyboard visible
+            scrollEnabled={keyboardHeight > 0} 
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingHorizontal: 20 * scaleWidth,
               paddingTop: 40 * scaleHeight,
-              paddingBottom: keyboardHeight + 20, // add extra space for keyboard
+              paddingBottom: keyboardHeight + 20, 
             }}
           >
             {/* Profile Image */}
-            <View style={{ alignItems: 'center', marginBottom: 18 }}>
+            <View style={{ alignItems: 'center', marginBottom: 18, marginTop: -12}}>
               <Image
                 source={{ uri: 'https://i.pravatar.cc/300' }}
                 style={{
@@ -206,20 +205,26 @@ export default function ProfileScreen() {
               <TouchableOpacity
                 style={{
                   backgroundColor: '#EDE9FE',
-                  paddingHorizontal: 16,
-                  paddingVertical: 6,
-                  borderRadius: 20,
+                  paddingHorizontal: 18,
+                  paddingVertical: 8,
+                  borderRadius: 8,
                   flexDirection: 'row',
                   alignItems: 'center',
                 }}
               >
-                <Ionicons name="camera-outline" size={14} color="#4B0082" />
+                <Image
+                  source={require('../assets/images/camera.svg')}
+                  style={{ width: 14, height: 14 }}
+                  contentFit="contain"
+                />
                 <Text
                   style={{
                     marginLeft: 6,
-                    color: '#4B0082',
+                    color: '#3E0288',
                     fontSize: 12,
-                    fontWeight: '500',
+                    fontWeight: '400',
+                    fontFamily: 'SF Compact Rounded',
+                    // lineHeight:23,
                   }}
                 >
                   Change Photo
@@ -236,6 +241,12 @@ export default function ProfileScreen() {
               onChangeText={setFullName}
               onFocus={() => handleInputFocus('fullName')}
               onLayout={(e) => handleInputLayout('fullName', e)}
+              borderTopWidth={0.5}
+              borderRightWidth={2}
+              borderBottomWidth={2}
+              borderLeftWidth={0.5}
+              reduceSpacing={true}
+             
             />
 
             <ProfileInput
@@ -246,16 +257,26 @@ export default function ProfileScreen() {
               onChangeText={setEmail}
               onFocus={() => handleInputFocus('email')}
               onLayout={(e) => handleInputLayout('email', e)}
+              borderTopWidth={0.5}
+              borderRightWidth={2}
+              borderBottomWidth={2}
+              borderLeftWidth={0.5}
+              reduceSpacing={true}
             />
 
             <ProfileInput
-              icon="business-outline"
-              label="Branch"
+              icon="call-outline"
+              label="Phone Number"
               scale={scaleWidth}
               value={branch}
               onChangeText={setBranch}
               onFocus={() => handleInputFocus('branch')}
               onLayout={(e) => handleInputLayout('branch', e)}
+              borderTopWidth={0.5}
+              borderRightWidth={2}
+              borderBottomWidth={2}
+              borderLeftWidth={0.5}
+              reduceSpacing={true}
             />
 
             <ProfileInput
@@ -266,6 +287,26 @@ export default function ProfileScreen() {
               onChangeText={setDepartment}
               onFocus={() => handleInputFocus('department')}
               onLayout={(e) => handleInputLayout('department', e)}
+              borderTopWidth={0.5}
+              borderRightWidth={2}
+              borderBottomWidth={2}
+              borderLeftWidth={0.5}
+              reduceSpacing={true}
+            />
+             <ProfileInput
+              icon="calendar-number-outline"
+              label="Start Date"
+              scale={scaleWidth}
+              value={startDate}
+              onChangeText={setStartDate}
+              onFocus={() => handleInputFocus('startDate')}
+              onLayout={(e) => handleInputLayout('startDate', e)}
+              borderTopWidth={0.5}
+              borderRightWidth={2}
+              borderBottomWidth={2}
+              borderLeftWidth={0.5}
+              reduceSpacing={true}
+              placeholder="DD/MM/YYYY"
             />
           </ScrollView>
         </KeyboardAvoidingView>
@@ -283,6 +324,12 @@ const ProfileInput = ({
   onChangeText,
   onFocus,
   onLayout,
+  borderTopWidth,
+  borderRightWidth,
+  borderBottomWidth,
+  borderLeftWidth,
+  keyboardType,
+  placeholder,
 }) => {
   return (
     <View
@@ -307,7 +354,11 @@ const ProfileInput = ({
           alignItems: 'center',
           width: 329 * scale,
           height: 52 * scale,
-          borderWidth: 1,
+          borderWidth: borderTopWidth !== undefined ? 0 : 1,
+          borderTopWidth: borderTopWidth !== undefined ? borderTopWidth : undefined,
+          borderRightWidth: borderRightWidth !== undefined ? borderRightWidth : undefined,
+          borderBottomWidth: borderBottomWidth !== undefined ? borderBottomWidth : undefined,
+          borderLeftWidth: borderLeftWidth !== undefined ? borderLeftWidth : undefined,
           borderColor: '#000',
           borderRadius: 15 * scale,
           paddingHorizontal: 14 * scale,
@@ -319,6 +370,9 @@ const ProfileInput = ({
           value={value}
           onChangeText={onChangeText}
           onFocus={onFocus}
+          keyboardType={keyboardType}
+          placeholder={placeholder}
+          placeholderTextColor="#9CA3AF"
           style={{
             flex: 1,
             marginLeft: 10 * scale,
