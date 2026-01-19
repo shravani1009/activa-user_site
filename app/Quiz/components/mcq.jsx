@@ -2,13 +2,10 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const mcq = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#3E0288' }) => {
-  const lightShade = '#F3E8FF';
-
   return (
     <View style={styles.container}>
       {question.options.map((option, index) => {
         const isSelected = selectedAnswer === option.value;
-        const optionBgColor = isSelected ? lightShade : '#fff';
         const circleFillColor = isSelected ? primaryColor : 'transparent';
 
         return (
@@ -18,9 +15,13 @@ const mcq = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#3E0288
             onPress={() => onAnswerSelect(option.value)}
             style={[
               styles.option,
-              { backgroundColor: optionBgColor }
+              isSelected && { borderColor: primaryColor, borderWidth: 2 }
             ]}
           >
+            <Text style={styles.optionText}>
+              {option.label}
+            </Text>
+
             {/* Circle */}
             <View
               style={[
@@ -31,10 +32,6 @@ const mcq = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#3E0288
                 }
               ]}
             />
-
-            <Text style={styles.optionText}>
-              {option.label}
-            </Text>
           </TouchableOpacity>
         );
       })}
@@ -51,12 +48,9 @@ const styles = StyleSheet.create({
     width: 353,
     height: 49,
     borderRadius: 15,
-    borderTopWidth: 1,
-    borderRightWidth: 1,
-    borderBottomWidth: 5,
-    borderLeftWidth: 5,
-    borderColor: '#000',
-    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: 'transparent',
+    backgroundColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -67,14 +61,14 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     borderWidth: 2,
-    marginRight: 12,
+    marginLeft: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   optionText: {
     fontFamily: 'SF Compact Rounded',
     fontWeight: '500',
-    fontSize: 16,
+    fontSize: 18,
     color: '#000',
     flex: 1,
   },

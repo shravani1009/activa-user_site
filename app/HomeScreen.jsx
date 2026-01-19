@@ -13,15 +13,12 @@ const HomeScreen = () => {
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
       >
         {/* Header Section */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hello Alex,</Text>
-          <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/SettingScreen')}>
-              <Ionicons name="settings-outline" size={24} color="#3E0288" />
-            </TouchableOpacity>
+          <View style={styles.headerTop}>
+            <Text style={styles.greeting}>Hello Alex,</Text>
             <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/NotificationScreen')}>
               <Ionicons name="notifications-outline" size={24} color="#3E0288" />
             </TouchableOpacity>
@@ -47,7 +44,7 @@ const HomeScreen = () => {
 
         {/* Module 1: Company Vision & Mission */}
         <TouchableOpacity 
-          style={[styles.moduleCard, styles.moduleCard1]}
+          style={styles.moduleCard}
           onPress={() => router.push('/VideoScreen')}
           activeOpacity={0.7}
         >
@@ -68,7 +65,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
 
         {/* Module 2: Company Culture & Values */}
-        <View style={[styles.moduleCard, styles.moduleCard2]}>
+        <View style={styles.moduleCard}>
           <View style={styles.moduleHeader}>
             <View style={styles.moduleTextContainer}>
               <Text style={styles.moduleTitle}>Company Culture & Values</Text>
@@ -86,7 +83,7 @@ const HomeScreen = () => {
         </View>
 
         {/* Module 3: Company Rules & Policy (Locked) */}
-        <View style={[styles.moduleCard, styles.moduleCard3]}>
+        <View style={styles.moduleCard}>
           <View style={styles.moduleHeader}>
             <View style={styles.moduleTextContainer}>
               <Text style={styles.moduleTitle}>Company Rules & Policy</Text>
@@ -105,8 +102,6 @@ const HomeScreen = () => {
           </View>
         </View>
 
-        {/* Bottom spacing for navigation bar */}
-        <View style={styles.bottomSpacing} />
       </ScrollView>
     </SafeAreaView>
   )
@@ -124,64 +119,45 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 30,
+    paddingBottom: 100,
   },
   header: {
-    position: 'relative',
     marginBottom: 20,
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
   greeting: {
-    // position: 'absolute',
-    left: 14,
-    top: 40,
-    width: 141,
-    height: 23,
-    fontSize: 30,
-    fontWeight: '600',
-    color: '#000000',
-    lineHeight: 23,
-    letterSpacing: 0,
+    fontSize: 32,
+    fontWeight: 'bold', // Use standard fontWeight (e.g., 'bold' or numeric up to '900')
     fontFamily: 'SF Compact Rounded',
-    textAlignVertical: 'center',
+    fontStyle: 'normal',
+    color: '#000000',
+    lineHeight: 36,
+    letterSpacing: 0,
+    flex: 1,    
   },
   subtitle: {
-    position: 'absolute',
-    left: 14,
-    right: 14,
-    top: 78,
     fontSize: 16,
     fontWeight: 'regular',
     color: '#686D76',
     lineHeight: 19,
     letterSpacing: 0,
     fontFamily: 'SF Compact Rounded',
-    textAlignVertical: 'center',
-  },
-  headerRight: {
-    position: 'absolute',
-    right: 20,
-    top: 35,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
   },
   iconButton: {
     width: 38,
     height: 38,
-    // borderRadius: 20,
-    // borderWidth: 1.5,
     borderColor: '#3E0288',
     justifyContent: 'center',
     alignItems: 'center',
-   
   },
   progressCard: {
-    position: 'absolute',
-    top: 168,
-    left: 17,
-    right: 17,
-    height: 118,
+    width: '100%',
     backgroundColor: '#3E0288',
     borderRadius: 23,
     borderTopWidth: 2,
@@ -191,6 +167,7 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderColor: '#000000',
     padding: 20,
+    marginBottom: 24,
   },
   progressCardText: {
     fontSize: 16,
@@ -232,10 +209,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   sectionTitle: {
-    position: 'absolute',
-    left: 23,
-    right: 23,
-    top: 310,
     fontSize: 16,
     fontWeight: '400',
     fontStyle: 'normal',
@@ -243,27 +216,17 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     letterSpacing: 0,
     fontFamily: 'SF Compact Rounded',
-    textAlignVertical: 'center',
+    marginBottom: 16,
   },
   moduleCard: {
-    position: 'absolute',
-    left: 19,
-    right: 19,
-    height: 125,
+    width: '100%',
+    minHeight: 125,
     backgroundColor: '#fff',
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
     padding: 16,
-  },
-  moduleCard1: {
-    top: 337,
-  },
-  moduleCard2: {
-    top: 482,
-  },
-  moduleCard3: {
-    top: 627,
+    marginBottom: 16,
   },
   moduleHeader: {
     flexDirection: 'row',
@@ -327,8 +290,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#1F2937',
     fontWeight: '600',
-  },
-  bottomSpacing: {
-    height: 100,
   },
 })

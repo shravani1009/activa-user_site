@@ -10,40 +10,67 @@ function BottomNavigator() {
   const insets = useSafeAreaInsets()
 
   // Show bottom nav ONLY on these screens
-<<<<<<< Updated upstream
-  const showOnScreens = ['/HomeScreen',]
-=======
-  const showOnScreens = ['/HomeScreen']
->>>>>>> Stashed changes
+  const showOnScreens = ['/HomeScreen', '/ProfileScreen']
   if (!showOnScreens.includes(pathname)) {
     return null
   }
 
   const isHomeScreen = pathname === '/HomeScreen'
+  const isProfileScreen = pathname === '/ProfileScreen'
+
+  const navItems = [
+    {
+      id: 'home',
+      label: 'Home',
+      icon: 'home',
+      activeIcon: 'home',
+      route: '/HomeScreen',
+      isActive: isHomeScreen,
+    },
+    {
+      id: 'progress',
+      label: 'Progress',
+      icon: 'stats-chart-outline',
+      activeIcon: 'stats-chart',
+      route: null, // Add route when Progress screen is created
+      isActive: false,
+    },
+    {
+      id: 'profile',
+      label: 'Profile',
+      icon: 'person-outline',
+      activeIcon: 'person',
+      route: '/ProfileScreen',
+      isActive: isProfileScreen,
+    },
+  ]
 
   return (
-    <View style={[styles.bottomNav, { bottom: Math.max(insets.bottom, 20) }]}>
-      <TouchableOpacity 
-        style={styles.navItem}
-        onPress={() => router.push('/HomeScreen')}
-      >
-        <Ionicons name="home" size={24} color="#fff" />
-        {isHomeScreen && <View style={styles.navDot} />}
-        <Text style={styles.navLabel}>Home</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.navItem}>
-        <Ionicons name="stats-chart-outline" size={24} color="#fff" />
-        <Text style={styles.navLabel}>Progress</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={styles.navItem} 
-        onPress={() => router.push('/ProfileScreen')}
-      >
-        <Ionicons name="person-outline" size={24} color="#fff" />
-        <Text style={styles.navLabel}>Profile</Text>
-      </TouchableOpacity>
+    <View style={[styles.bottomNav, { paddingBottom: Math.max(insets.bottom, 8) }]}>
+      {navItems.map((item) => {
+        const iconName = item.isActive ? item.activeIcon : item.icon
+        const iconColor = item.isActive ? '#3E0288' : '#6B7280'
+        const labelColor = item.isActive ? '#3E0288' : '#6B7280'
+
+        const handlePress = () => {
+          if (item.route && !item.isActive) {
+            router.push(item.route)
+          }
+        }
+
+        return (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.navItem}
+            onPress={handlePress}
+            activeOpacity={0.7}
+            disabled={item.isActive}
+          >
+            <Ionicons name={iconName} size={24} color={iconColor} />
+            <Text style={[styles.navLabel, { color: labelColor }]}>{item.label}</Text>
+          </TouchableOpacity>
+        )
+      })}
     </View>
   )
 }
@@ -78,25 +105,28 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   bottomNav: {
     position: 'absolute',
-    left: '15%',
-    right: '15%',
-    height: 60,
-    backgroundColor: '#3E0288',
-    borderRadius: 244,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingHorizontal: 20,
+    alignItems: 'flex-start',
+    paddingTop: 8,
+    paddingHorizontal: 8,
+    minHeight: 60,
     ...Platform.select({
       web: {
-        boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)',
+        boxShadow: '0 -1px 3px rgba(0, 0, 0, 0.1)',
       },
       default: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 5,
+        shadowOffset: { width: 0, height: -1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 8,
       },
     }),
   },
@@ -104,18 +134,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  navDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#fff',
-    marginTop: 4,
-    marginBottom: 2,
+    paddingVertical: 4,
+    minHeight: 50,
   },
   navLabel: {
-    fontSize: 12,
-    color: '#fff',
+    fontSize: 11,
     fontWeight: '500',
+    marginTop: 4,
+    textAlign: 'center',
   },
 })

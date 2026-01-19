@@ -157,6 +157,25 @@ const QuizScreen = () => {
         </View>
       </View>
 
+      {/* Progress Indicator */}
+      <View style={styles.progressContainer}>
+        {quizData.map((question, index) => {
+          const isCompleted = answers[question.id] !== undefined && answers[question.id] !== null
+          const isCurrent = index === currentQuestionIndex
+          const segmentColor = isCompleted || isCurrent ? '#3E0288' : '#E5E7EB'
+          
+          return (
+            <View
+              key={question.id}
+              style={[
+                styles.progressSegment,
+                { backgroundColor: segmentColor }
+              ]}
+            />
+          )
+        })}
+      </View>
+
       {/* Title Section */}
       <View style={styles.titleContainer}>
         <Text style={styles.title}>Question Round</Text>
@@ -236,24 +255,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 10,
-    paddingBottom: 20,
+    paddingBottom: 40,
   },
   backButton: {
-    top: 50,
+    top: 20,
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 10,
+    gap: 4,
+  },
+  progressSegment: {
+    flex: 1,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#E5E7EB',
   },
   titleContainer: {
     paddingHorizontal: 20,
     marginBottom: 24,
   },
   title: {
-    fontSize: 30,
+    fontSize: 32,
     fontStyle: 'semibold',
     fontWeight: '600',
-    lineHeight: 23,
+    lineHeight: 28,
     top: 46,
     left: 8,
     color: '#000000',
@@ -281,8 +315,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 79,
     height: 38,
-    left: 270,
-    top: 65,
+    left: 290,
+    top: 30,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -298,14 +332,13 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingTop: 50,
+    paddingBottom: 120,
+    alignItems: 'center',
   },
   questionBlock: {
-    position: 'absolute',
-    width: 365,
-    height: 104,
-    top: 58,
-    left: 14,
+    width: 353,
+    minHeight: 104,
     backgroundColor: '#3E0288',
     borderRadius: 23,
     borderTopWidth: 2,
@@ -313,9 +346,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 5,
     borderLeftWidth: 2,
     borderColor: '#000000',
-    padding: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 24,
   },
   questionText: {
     fontSize: 18,
@@ -325,17 +361,19 @@ const styles = StyleSheet.create({
     lineHeight: 26,
   },
   answerContainer: {
-    top: 190,
-    marginTop: 8,
+    alignItems: 'center',
+    width: '100%',
   },
   submitContainer: {
-    position: 'absolute',
-    top: 644,
-    left: 53,
+    paddingHorizontal: 25,
+    paddingTop: 16,
+    paddingBottom: 140,
     backgroundColor: '#FFFFFF',
+    alignItems: 'center',
   },
   submitButton: {
-    width: 287,
+    width: '100%',
+    maxWidth: 312,
     height: 45,
     borderRadius: 12,
     borderWidth: 1,
@@ -348,7 +386,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5E7EB',
   },
   submitButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     lineHeight: 23,
     fontWeight: '500',
     color: '#FFFFFF',
@@ -360,7 +398,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 10,
   },
   submittedText: {
     fontSize: 24,
