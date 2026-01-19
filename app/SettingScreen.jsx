@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import {
   View,
@@ -9,29 +11,60 @@ import {
   ScrollView,
   Animated,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
+
+const SPACING = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+};
+
+const LAYOUT = {
+  headerHeight: 260,
+  cardBorderRadius: 60,
+  cardTopPosition: 220,
+  containerPadding: 24,
+  containerWidth: SCREEN_WIDTH - (SPACING.lg * 2), // Responsive width
+  iconContainerSize: 32,
+  iconSize: 18,
+  buttonSize: 40,
+};
+
+const COLORS = {
+  primary: '#3e0288',
+  white: '#FFFFFF',
+  border: '#E5E7EB',
+  textPrimary: '#111827',
+  textSecondary: '#6B7280',
+  textTertiary: '#9CA3AF',
+  error: '#E91B1B',
+};
+
 export default function SettingScreen() {
   const router = useRouter();
-  const CARD_RADIUS = 60;
+  const insets = useSafeAreaInsets();
+
+  // Responsive scaling
   const scaleWidth = SCREEN_WIDTH / 414;
   const scaleHeight = SCREEN_HEIGHT / 896;
   const headerFontSize = Math.min(28, SCREEN_WIDTH * 0.07);
 
   const [pushEnabled, setPushEnabled] = useState(true);
   const [emailEnabled, setEmailEnabled] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-
   const [languageDropdownVisible, setLanguageDropdownVisible] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const [dropdownAnim] = useState(new Animated.Value(0));
 
   const togglePush = () => setPushEnabled(prev => !prev);
   const toggleEmail = () => setEmailEnabled(prev => !prev);
-  const toggleDark = () => setDarkMode(prev => !prev);
 
   const languages = [
     { code: 'en', name: 'English' },
@@ -42,9 +75,6 @@ export default function SettingScreen() {
     setSelectedLanguage(langName);
     setLanguageDropdownVisible(false);
   };
-
-  // Animation for dropdown
-  const [dropdownAnim] = useState(new Animated.Value(0));
 
   const toggleDropdown = () => {
     setLanguageDropdownVisible(prev => !prev);
@@ -57,158 +87,117 @@ export default function SettingScreen() {
 
   const dropdownHeight = dropdownAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, languages.length * 42], // height per item
+    outputRange: [0, languages.length * 42],
   });
 
+  const styles = getStyles(scaleWidth, scaleHeight);
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#3e0288' }}>
+    <SafeAreaView style={styles.safeArea}>
       {/* PURPLE HEADER */}
-      <View
-        style={{
-          height: 260 * scaleHeight,
-          paddingHorizontal: 20 * scaleWidth,
-          paddingTop: 30 * scaleHeight,
-          justifyContent: 'space-between',
-        }}
-      >
-        {/* Top Row: Back Button and Icons */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          {/* Back Button */}
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={{
-              width: 32,
-              height: 32,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
+            style={styles.backButton}
           >
-            <Ionicons name="arrow-back-outline" size={18} color="#fff" />
+            <Ionicons name="arrow-back-outline" size={18 * scaleWidth} color={COLORS.white} />
           </TouchableOpacity>
 
-          {/* Top Icons */}
-          <View style={{
-            position: 'absolute',
-            width: 79,
-            height: 38,
-            left: 310,
-            top: 55,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
+          <View style={styles.headerActions}>
             <TouchableOpacity
-              onPress={() => router.push('/notifications')}
-              style={{
-                width: 38,
-                height: 38,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
+              onPress={() => router.push('/SettingScreen')}
+              style={styles.iconBtn}
             >
-              <Ionicons name="notifications-outline" size={24} color="#fff" />
+              <Ionicons name="settings-outline" size={20 * scaleWidth} color={COLORS.white} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.push('/NotificationScreen')}
+              style={[styles.iconBtn, styles.iconBtnTransparent]}
+            >
+              <Ionicons name="notifications-outline" size={20 * scaleWidth} color={COLORS.white} />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Title - Positioned at bottom of purple container */}
-        <View style={{ marginBottom: 120, marginLeft: 10 }}>
-          <Text
-            style={{
-              fontSize: headerFontSize,
-              fontWeight: '600',
-              color: '#fff',
-            }}
-          >
-            Settings
-          </Text>
-          <Text
-            style={{
-              fontSize: 14 * scaleWidth,
-              color: '#E5E7EB',
-              marginTop: 4,
-            }}
-          >
-            Choose your preferences
-          </Text>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Setting</Text>
+          <Text style={styles.headerSubtitle}>Choose Your Preferences</Text>
         </View>
       </View>
 
       {/* WHITE CARD CONTENT */}
       <ScrollView
-        style={{
-          position: 'absolute',
-          top: 220 * scaleHeight,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: '#fff',
-          borderTopLeftRadius: CARD_RADIUS * scaleWidth,
-          borderTopRightRadius: CARD_RADIUS * scaleWidth,
-          paddingHorizontal: 24 * scaleWidth,
-          paddingTop: 32 * scaleHeight,
-          shadowColor: '#000',
-          shadowOpacity: 0.06,
-          shadowOffset: { width: 0, height: -2 },
-          shadowRadius: 10,
-          elevation: 4,
+        style={styles.scrollView}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + SPACING.lg * scaleHeight,
         }}
       >
         {/* Notification Preferences */}
         <SectionTitle label="Notification Preferences" />
-        <SettingsRow
-          icon="notifications-outline"
-          iconBg="#F3E8FF"
-          label="Push Notifications"
-          rightComponent={<PurpleSwitch value={pushEnabled} onValueChange={togglePush} />}
-        />
-        <SettingsRow
-          icon="mail-outline"
-          iconBg="#F3E8FF"
-          label="Email Notifications"
-          rightComponent={<PurpleSwitch value={emailEnabled} onValueChange={toggleEmail} />}
-        />
+        <View style={styles.settingsCard}>
+          <SettingsRow
+            customIcon={
+              <Image
+                source={require('../assets/images/notify.svg')}
+                style={styles.iconImage}
+                contentFit="contain"
+              />
+            }
+            label="Push Notifications"
+            rightComponent={<PurpleSwitch value={pushEnabled} onValueChange={togglePush} />}
+          />
+          <Separator />
+          <SettingsRow
+            customIcon={
+              <Image
+                source={require('../assets/images/email.svg')}
+                style={styles.iconImage}
+                contentFit="contain"
+              />
+            }
+            label="Email Notifications"
+            rightComponent={<PurpleSwitch value={emailEnabled} onValueChange={toggleEmail} />}
+          />
+        </View>
 
         {/* App Preferences */}
-        <SectionTitle label="App Preferences" style={{ marginTop: 26 }} />
-
-        {/* Language Row */}
-        <View style={{ marginBottom: 12 }}>
-          <TouchableOpacity onPress={toggleDropdown}>
+        <SectionTitle label="App Preferences" style={styles.sectionSpacing} />
+        <View style={styles.settingsCard}>
+          <TouchableOpacity onPress={toggleDropdown} activeOpacity={0.7}>
             <SettingsRow
-              icon="language-outline"
-              iconBg="#F3E8FF"
+              customIcon={
+                <Image
+                  source={require('../assets/images/language.svg')}
+                  style={styles.iconImage}
+                  contentFit="contain"
+                />
+              }
               label="Language"
               rightComponent={
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={styles.languageSelector}>
                   <Text style={styles.secondaryText}>{selectedLanguage}</Text>
                   <Ionicons
                     name={languageDropdownVisible ? 'chevron-up' : 'chevron-down'}
                     size={18}
-                    color="#9CA3AF"
-                    style={{ marginLeft: 4 }}
+                    color={COLORS.textTertiary}
+                    style={styles.chevronIcon}
                   />
                 </View>
               }
             />
           </TouchableOpacity>
 
-          {/* Right-aligned dropdown list */}
+          {/* Dropdown list */}
           {languageDropdownVisible && (
-            <Animated.View style={[styles.rightDropdownContainer, { height: dropdownHeight }]}>
+            <Animated.View style={[styles.dropdown, { height: dropdownHeight }]}>
               {languages.map(lang => (
                 <TouchableOpacity
                   key={lang.code}
-                  style={styles.rightDropdownItem}
-                  onPress={() => {
-                    handleLanguageChange(lang.code, lang.name);
-                  }}
+                  style={styles.dropdownItem}
+                  onPress={() => handleLanguageChange(lang.code, lang.name)}
                 >
                   <Text style={styles.dropdownText}>{lang.name}</Text>
                 </TouchableOpacity>
@@ -217,87 +206,245 @@ export default function SettingScreen() {
           )}
         </View>
 
-        <SettingsRow
-          icon="moon-outline"
-          iconBg="#F3E8FF"
-          label="Dark Mode"
-          rightComponent={<PurpleSwitch value={darkMode} onValueChange={toggleDark} />}
-        />
-
         {/* Account Settings */}
-        <SectionTitle label="Account Settings" style={{ marginTop: 26 }} />
-        <TouchableOpacity activeOpacity={0.7} onPress={() => router.push('/ChangePasswordScreen')}>
-          <SettingsRow
-            icon="key-outline"
-            iconBg="#F3E8FF"
-            label="Change Password"
-            rightComponent={<Ionicons name="chevron-forward" size={18} color="#9CA3AF" />}
-          />
-        </TouchableOpacity>
-        <SettingsRow
-          icon="help-circle-outline"
-          iconBg="#F3E8FF"
-          label="Help & Support"
-          rightComponent={<Ionicons name="chevron-forward" size={18} color="#9CA3AF" />}
-        />
-        <TouchableOpacity style={{ marginTop: 6}} activeOpacity={0.7} onPress={() => {}}>
-          <SettingsRow
-            icon="log-out-outline"
-            // iconBg="#FFFFFF"
-            iconColor="#E91B1B"
-            label="Log Out"
-            labelStyle={{ color: '#E91B1B' }}
-            // rightComponent={<Ionicons name="chevron-forward" size={18} color="#9CA3AF" />}
-          />
-        </TouchableOpacity>
+        <SectionTitle label="Account Settings" style={styles.sectionSpacing} />
+        <View style={styles.settingsCard}>
+          <TouchableOpacity 
+            activeOpacity={0.7} 
+            onPress={() => router.push('/ChangePasswordScreen')}
+          >
+            <SettingsRow
+              customIcon={
+                <Image
+                  source={require('../assets/images/password.svg')}
+                  style={styles.iconImage}
+                  contentFit="contain"
+                />
+              }
+              label="Change Password"
+              rightComponent={
+                <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
+              }
+            />
+          </TouchableOpacity>
+
+          <Separator />
+
+          <TouchableOpacity activeOpacity={0.7}>
+            <SettingsRow
+              customIcon={
+                <Image
+                  source={require('../assets/images/help.svg')}
+                  style={styles.iconImage}
+                  contentFit="contain"
+                />
+              }
+              label="Help & Support"
+              rightComponent={
+                <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
+              }
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Logout Row */}
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => { /* logout logic */ }}>
+            <View style={styles.logoutRow}>
+              <View style={styles.iconContainer}>
+                <Ionicons name="log-out-outline" size={18} color={COLORS.error} />
+              </View>
+              <Text style={styles.logoutText}>Log Out</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-/* Reusable components */
+/* Reusable Components */
 const SectionTitle = ({ label, style }) => (
-  <Text
-    style={[
-      { fontSize: 14, color: '#9CA3AF', fontWeight: '400', letterSpacing:0,marginBottom: 5, marginTop: 12 },
-      style,
-    ]}
-  >
+  <Text style={[styles.sectionTitle, style]}>
     {label}
   </Text>
 );
 
-const SettingsRow = ({ icon, iconBg, iconColor = '#6D28D9', label, rightComponent, labelStyle }) => (
-  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10 }}>
-    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: iconBg, justifyContent: 'center', alignItems: 'center', marginRight: 14 }}>
-        <Ionicons name={icon} size={18} color={iconColor} />
+const SettingsRow = ({ customIcon, label, rightComponent }) => (
+  <View style={styles.row}>
+    <View style={styles.rowLeft}>
+      <View style={styles.iconContainer}>
+        {customIcon}
       </View>
-      <Text style={[styles.primaryText, labelStyle]}>{label}</Text>
+      <Text style={styles.primaryText}>{label}</Text>
     </View>
     {rightComponent}
   </View>
+);
+
+const Separator = () => (
+  <View style={styles.separator} />
 );
 
 const PurpleSwitch = ({ value, onValueChange }) => (
   <Switch
     value={value}
     onValueChange={onValueChange}
-    trackColor={{ false: '#E5E7EB', true: '#6D28D9' }}
-    thumbColor="#ffffff"
-    ios_backgroundColor="#E5E7EB"
+    trackColor={{ false: COLORS.border, true: '#6D28D9' }}
+    thumbColor={COLORS.white}
+    ios_backgroundColor={COLORS.border}
   />
 );
 
-const styles = StyleSheet.create({
-  primaryText: { fontSize: 14, color: '#111827', fontWeight: '500' },
-  secondaryText: { fontSize: 13, color: '#6B7280', fontWeight: '500' },
-  rightDropdownContainer: {
+const getStyles = (scaleWidth, scaleHeight) => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+  },
+  header: {
+    height: LAYOUT.headerHeight * scaleHeight,
+    paddingHorizontal: 20 * scaleWidth,
+    paddingTop: 30 * scaleHeight,
+    justifyContent: 'space-between',
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  backButton: {
+    width: 32 * scaleWidth,
+    height: 32 * scaleHeight,
+    borderRadius: 8 * scaleWidth,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerActions: {
+    flexDirection: 'row',
+  },
+  iconBtn: {
+    width: LAYOUT.buttonSize * scaleWidth,
+    height: LAYOUT.buttonSize * scaleWidth,
+    borderRadius: 20 * scaleWidth,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(227,227,227,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: SPACING.sm * scaleWidth,
+  },
+  iconBtnTransparent: {
+    backgroundColor: 'transparent',
+  },
+  headerTitleContainer: {
+    marginBottom: 120 * scaleHeight,
+    marginLeft: 10 * scaleWidth,
+  },
+  headerTitle: {
+    fontSize: 28 * scaleWidth,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  headerSubtitle: {
+    fontSize: 14 * scaleWidth,
+    color: COLORS.border,
+    marginTop: 4 * scaleHeight,
+  },
+  scrollView: {
+    position: 'absolute',
+    top: LAYOUT.cardTopPosition * scaleHeight,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: COLORS.white,
+    borderTopLeftRadius: LAYOUT.cardBorderRadius * scaleWidth,
+    borderTopRightRadius: LAYOUT.cardBorderRadius * scaleWidth,
+    paddingHorizontal: LAYOUT.containerPadding * scaleWidth,
+    paddingTop: LAYOUT.containerPadding * scaleHeight,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    color: COLORS.textTertiary,
+    fontWeight: '400',
+    letterSpacing: 0,
+    marginBottom: 4,
+    marginTop: SPACING.sm,
+  },
+  sectionSpacing: {
+    marginTop: 18,
+  },
+  settingsCard: {
+    width: LAYOUT.containerWidth,
+    minHeight: 60,
+    backgroundColor: COLORS.white,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    paddingHorizontal: SPACING.md,
+    paddingTop: SPACING.sm,
+    paddingBottom: 6,
+    alignSelf: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 0.75,
+    overflow: 'visible',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: SPACING.sm,
+  },
+  rowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  iconContainer: {
+    width: LAYOUT.iconContainerSize,
+    height: LAYOUT.iconContainerSize,
+    marginRight: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconImage: {
+    width: LAYOUT.iconSize,
+    height: LAYOUT.iconSize,
+  },
+  primaryText: {
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    fontWeight: '500',
+  },
+  secondaryText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: COLORS.border,
+    marginHorizontal: -SPACING.md,
+  },
+  languageSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chevronIcon: {
+    marginLeft: 4,
+  },
+  dropdown: {
     position: 'absolute',
     top: 50,
     right: 0,
     width: 120,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.white,
     borderRadius: 8,
     paddingVertical: 2,
     elevation: 4,
@@ -308,14 +455,32 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     overflow: 'hidden',
   },
-  rightDropdownItem: {
+  dropdownItem: {
     paddingVertical: 10,
     paddingHorizontal: 12,
   },
   dropdownText: {
     fontSize: 14,
-    color: '#111827',
+    color: COLORS.textPrimary,
+    fontWeight: '500',
+  },
+  logoutContainer: {
+    width: LAYOUT.containerWidth,
+    alignSelf: 'center',
+    paddingHorizontal: SPACING.md,
+    marginTop: 12,
+  },
+  logoutRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+  },
+  logoutText: {
+    fontSize: 14,
+    color: COLORS.error,
     fontWeight: '500',
   },
 });
+
+const styles = getStyles(SCREEN_WIDTH / 414, SCREEN_HEIGHT / 896);
 

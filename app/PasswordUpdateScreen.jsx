@@ -4,33 +4,44 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-const { width, height } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function PasswordUpdatedScreen() {
   const router = useRouter();
+  
+  // Responsive scaling
+  const scaleWidth = SCREEN_WIDTH / 414;
+  const scaleHeight = SCREEN_HEIGHT / 896;
 
   return (
     <View style={styles.container}>
       {/* Checkmark Icon */}
       <Ionicons
         name="checkmark-circle"
-        size={52} // exact width & height
+        size={52 * scaleWidth}
         color="white"
-        style={styles.icon}
+        style={[styles.icon, { top: 280 * scaleHeight }]}
       />
 
       {/* Title */}
-      <Text style={styles.title}>Password Updated</Text>
+      <Text style={[styles.title, { fontSize: 24 * scaleWidth, marginTop: 350 * scaleHeight }]}>Password Updated</Text>
 
       {/* Subtitle */}
-      <Text style={styles.subtitle}>Your password has been successfully updated.</Text>
+      <Text style={[styles.subtitle, { fontSize: 12 * scaleWidth, lineHeight: 18 * scaleHeight, marginTop: 5 * scaleHeight }]}>Your password has been successfully updated.</Text>
 
       {/* Back Button */}
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, { 
+          paddingVertical: 14 * scaleHeight, 
+          paddingHorizontal: 40 * scaleWidth, 
+          borderRadius: 10 * scaleWidth,
+          width: 252 * scaleWidth,
+          height: 48 * scaleHeight,
+          marginTop: 30 * scaleHeight
+        }]}
         onPress={() => router.push('/ProfileScreen')}
       >
-        <Text style={styles.buttonText}>Back to Profile</Text>
+        <Text style={[styles.buttonText, { fontSize: 16 * scaleWidth }]}>Back to Profile</Text>
       </TouchableOpacity>
     </View>
   );
@@ -43,39 +54,29 @@ const styles = StyleSheet.create({
   },
   icon: {
     position: 'absolute',
-    top: 268, 
-    
-    left: 171,
+    alignSelf: 'center', 
   },
   title: {
     fontFamily: 'SF Compact Rounded',
     fontWeight: '500',
-    fontSize: 24,
     color: 'white',
     textAlign: 'center',
-    marginTop: 350, 
   },
   subtitle: {
     fontFamily: 'SF Compact Rounded',
     fontWeight: '500',
-    fontSize: 12,
-    lineHeight: 18,
     color: 'white',
     textAlign: 'center',
-    marginTop: 10,
   },
   button: {
     backgroundColor: 'white',
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 10,
     alignSelf: 'center',
-    marginTop: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
     fontFamily: 'SF Compact Rounded',
-    fontSize: 16,
     fontWeight: '600',
-    color: '#4B0082',
+    color: '#3E0288',
   },
 });

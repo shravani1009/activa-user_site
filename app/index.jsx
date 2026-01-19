@@ -6,21 +6,25 @@ import { useRouter } from 'expo-router'
 
 const { width, height } = Dimensions.get('window')
 
+// Responsive scaling factors 
+const scaleWidth = width / 414
+const scaleHeight = height / 896
+
 const index = () => {
-  const router = useRouter()
-  
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Top Section - Purple Background with Illustration */}
       <View style={styles.topSection}>
-      
-        
+
+
         {/* Title */}
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Learning</Text>
           <Text style={styles.title}>Journey Loop</Text>
         </View>
-        
+
         {/* Illustration Section */}
         <View style={styles.illustrationContainer}>
           <Image
@@ -30,18 +34,31 @@ const index = () => {
           />
         </View>
       </View>
-      
+
       {/* Bottom Section - White Background with CTA */}
       <View style={styles.bottomSection}>
         <Text style={styles.ctaText}>
           Log in or sign up to begin your onboarding process through guided video training.
         </Text>
-        <TouchableOpacity
-          style={styles.goButton}
-          onPress={() => router.push('/LoginScreen')}
+        <View
+          style={{
+            width: 84 * scaleWidth,             // outer ring diameter
+            height: 84 * scaleWidth,
+            borderRadius: 42 * scaleWidth,      // make it circular
+            borderWidth: 4 * scaleWidth,        // thickness of the purple ring
+            borderColor: '#3E0288', // purple color for the outer ring
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
         >
-          <Text style={styles.goButtonText}>Go</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.goButton}
+            onPress={() => router.push('/LoginScreen')}
+          >
+            <Text style={styles.goButtonText}>Go</Text>
+          </TouchableOpacity>
+        </View>
+
       </View>
     </SafeAreaView>
   )
@@ -61,7 +78,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 40,
+    paddingTop: 40 * scaleHeight,
   },
   gridContainer: {
     position: 'absolute',
@@ -83,23 +100,24 @@ const styles = StyleSheet.create({
     opacity: 0.2,
   },
   titleContainer: {
+    marginTop: 10 * scaleHeight,
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 25 * scaleHeight,
   },
   title: {
-    fontSize: 40,
+    fontSize: 40 * scaleWidth,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
     fontFamily: 'Jura',
-    
+
   },
   illustrationContainer: {
     width: width * 0.95,
-    height: height * 0.4,
+    height: height * 0.42,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -10,
+    marginTop: -1 * scaleHeight,
   },
   illustration: {
     width: '100%',
@@ -108,32 +126,31 @@ const styles = StyleSheet.create({
   bottomSection: {
     flex: 1,
     backgroundColor: '#fff',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingHorizontal: 24,
-    paddingTop: 10,
+    borderTopLeftRadius: 30 * scaleWidth,
+    borderTopRightRadius: 30 * scaleWidth,
+    paddingHorizontal: 24 * scaleWidth,
+    paddingTop: 10 * scaleHeight,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -20,
+    marginTop: -20 * scaleHeight,
     zIndex: 1,
   },
   ctaText: {
-    fontSize: 28,
+    fontSize: 28 * scaleWidth,
     fontWeight: '600',
     fontFamily: 'SF Compact Rounded',
-    lineHeight: 31,
+    lineHeight: 31 * scaleHeight,
     letterSpacing: 0,
     textAlign: 'center',
     color: '#3E0288',
-    paddingBottom: 20,
+    paddingBottom: 20 * scaleHeight,
   },
   goButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 68 * scaleWidth,
+    height: 68 * scaleWidth,
+    borderRadius: 36 * scaleWidth,
     backgroundColor: '#3E0288',
-    borderWidth: 3,
-    borderColor: '#fff',
+    
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
@@ -142,16 +159,16 @@ const styles = StyleSheet.create({
       },
       default: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: { width: 0, height: 4 * scaleHeight },
         shadowOpacity: 0.3,
-        shadowRadius: 8,
+        shadowRadius: 8 * scaleWidth,
         elevation: 8,
       },
     }),
   },
   goButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 18 * scaleWidth,
     fontWeight: '600',
   },
 })
