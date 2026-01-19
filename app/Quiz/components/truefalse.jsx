@@ -2,8 +2,6 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const truefalse = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#3E0288' }) => {
-  const lightShade = '#F3E8FF';
-
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -11,9 +9,13 @@ const truefalse = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#
         onPress={() => onAnswerSelect(true)}
         style={[
           styles.button,
-          { backgroundColor: selectedAnswer === true ? lightShade : '#fff' }
+          selectedAnswer === true && { borderColor: primaryColor, borderWidth: 2 }
         ]}
       >
+        <Text style={styles.buttonText}>
+          True
+        </Text>
+
         {/* Circle */}
         <View
           style={[
@@ -24,10 +26,6 @@ const truefalse = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#
             }
           ]}
         />
-
-        <Text style={styles.buttonText}>
-          True
-        </Text>
       </TouchableOpacity>
       
       <TouchableOpacity
@@ -35,9 +33,13 @@ const truefalse = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#
         onPress={() => onAnswerSelect(false)}
         style={[
           styles.button,
-          { backgroundColor: selectedAnswer === false ? lightShade : '#fff' }
+          selectedAnswer === false && { borderColor: primaryColor, borderWidth: 2 }
         ]}
       >
+        <Text style={styles.buttonText}>
+          False
+        </Text>
+
         {/* Circle */}
         <View
           style={[
@@ -48,10 +50,6 @@ const truefalse = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#
             }
           ]}
         />
-
-        <Text style={styles.buttonText}>
-          False
-        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -60,38 +58,33 @@ const truefalse = ({ question, selectedAnswer, onAnswerSelect, primaryColor = '#
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    flexDirection: 'row',
-    gap: 12,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   button: {
-    width: 170,
+    width: 353,
     height: 49,
     borderRadius: 15,
-    borderTopWidth: 1,
-    borderRightWidth: 1,
-    borderBottomWidth: 5,
-    borderLeftWidth: 5,
-    borderColor: '#000',
-    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: 'transparent',
+    backgroundColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
+    marginBottom: 12,
   },
   radioButton: {
     width: 18,
     height: 18,
     borderRadius: 9,
     borderWidth: 2,
-    marginRight: 12,
+    marginLeft: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
     fontFamily: 'SF Compact Rounded',
     fontWeight: '500',
-    fontSize: 16,
+    fontSize: 18,
     color: '#000',
     flex: 1,
   },
